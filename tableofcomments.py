@@ -35,7 +35,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		comment       = '|'.join(comment_chars)
 		start         = '\s|'+re.escape(comment).replace('\|', '|')
 
-		pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s)+$'
+		pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s)+('+start+')*?$'
 		matches = view.find_all(pattern)
 		results = []
 		for region in matches:
