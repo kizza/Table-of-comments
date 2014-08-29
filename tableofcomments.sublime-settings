@@ -1,0 +1,16 @@
+{
+	// "level_1_char": "=",		// = Title 1
+	// "level_2_char": "-=",	// -= Title 2
+	// "level_3_char": "--=",	// --= Title 3
+
+	"level_1_char": ">",			// > Title 1
+	"level_2_char": ">>",		// >> Title 2
+	"level_3_char": ">>>",		// >>> Title 3
+
+	// "level_1_char": ":",		// : Title 1
+	// "level_2_char": "::",	// :: Title 2
+	// "level_3_char": ":::",	// ::: Title 3
+
+	// These characters can appear before the title	(within the comment)
+	"comment_chars": "/*#"	
+}
