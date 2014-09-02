@@ -21,7 +21,10 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		matches = view.find_all(pattern)
 		for region in (matches):
 			toc = self.compile_toc(view)
-			view.replace(edit, sublime.Region(region.a, region.b), toc)
+			existing = view.substr(region)
+			if existing != toc:
+				print "changed"
+				view.replace(edit, region, toc)
 
 	def compile_toc(self, view):
 		titles = self.get_comment_titles(view, 'string')
