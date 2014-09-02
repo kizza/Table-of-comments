@@ -1,16 +1,36 @@
 {
-	// "level_1_char": "=",		// = Title 1
-	// "level_2_char": "-=",	// -= Title 2
-	// "level_3_char": "--=",	// --= Title 3
-
+	/* 
+	* Settings for parsing comment titles
+	*/
 	"level_1_char": ">",			// > Title 1
 	"level_2_char": ">>",		// >> Title 2
 	"level_3_char": ">>>",		// >>> Title 3
+
+	/* 
+	* (Example of alternatives for comment title parsing)
+	*/
+
+	// "level_1_char": "=",		// = Title 1
+	// "level_2_char": "-=",	// -= Title 2
+	// "level_3_char": "--=",	// --= Title 3
 
 	// "level_1_char": ":",		// : Title 1
 	// "level_2_char": "::",	// :: Title 2
 	// "level_3_char": ":::",	// ::: Title 3
 
-	// These characters can appear before the title	(within the comment)
-	"comment_chars": "/*#"	
+
+	/* 
+	* Table of contents options
+	*/
+	"toc_start": "/*",			// Start table of contents with
+	"toc_title": "TOC",			// Title to display (and look for) for table of contents creation
+	"toc_line": "* ",				// Prefix of each line within table of contents
+	"toc_end": "*/",				// End table of contents with
+	"toc_level": "3",				// 1 = only show top titles, 2 = second levels also, 3 = all levels
+	
+	/* 
+	* These characters are allowed to appear before the parsed title within the comment
+	* (if unsure leave as is)
+	*/ 
+	"comment_chars": "/*#"
 }

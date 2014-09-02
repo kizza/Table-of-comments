@@ -9,10 +9,39 @@ import sublime, sublime_plugin, re
 class table_of_comments_command(sublime_plugin.TextCommand):
 	def run(self, edit):
 		view = self.view
+		self.create_toc(view, edit);
 		titles = self.get_comment_titles(view, 'string')
 		self.disabled_packages = titles
 		self.window = sublime.active_window()
 		self.window.show_quick_panel(self.disabled_packages, self.on_list_selected_done)
+
+	def create_toc(self, view, edit):
+		title = get_setting('toc_title', str)
+		pattern = r'\/\*(\s|\*)*'+title+r'[^\/]*\/'
+		matches = view.find_all(pattern)
+		for region in (matches):
+			toc = self.compile_toc(view)
+			view.replace(edit, sublime.Region(region.a, region.b), toc)
+
+	def compile_toc(self, view):
+		titles = self.get_comment_titles(view, 'string')
+		title  = get_setting('toc_title', str)
+		start  = get_setting('toc_start', str)
+		line   = get_setting('toc_line', str)
+		end    = get_setting('toc_end', str)
+		level  = get_setting('toc_level', int)
+		front  = "\n"+ line
+		output = start + front + title + front	
+		for title in titles:
+			l = 1
+			if ' -- ' in title:
+				l = 3
+			elif ' - ' in title:
+				l = 2;
+			if level >= l:
+				output+= front + title
+		output+= "\n"+end
+		return output
 
 	def on_list_selected_done(self, picked):
 		if picked == -1:
@@ -56,7 +85,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 				elif level2 in line:
 					line = ' - '+line.replace(level2, '').strip()
 				elif level1 in line:
-					line = ' '+line.replace(level1, '').strip()
+					line = ''+line.replace(level1, '').strip()
 
 				# Get the position
 				line_no, col_no = view.rowcol(region.b)
