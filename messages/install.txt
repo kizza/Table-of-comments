@@ -1,13 +1,35 @@
-This plugin implements a stripped down version of the functionality in css preprocessors so that you can use css variables and nesting without one.
+This plugin lets you quick-jump between headings within your comments and optionally creates a table of contents within your document 
 
 
 How to use it
 -------------------------------
-By simply activating this plugin you're all set!
-Start using variables, nesting and more via the documentation at https://github.com/kizza/CSS-Less-ish
+
+Simply start using "headings" within your comments to organise your code using the format below (nb. the title characters are able to be changed within the plugin settings) 
+
+First level heading...
+/* > Heading 1 */
+
+Second level heading...
+/* >> Heading 2 */
+
+Third level heading...
+/* >>> Heading 3 */
+
+
+Running the plugin
+-------------------------------
+
+You can then run the plugin as per below
+
+1. Via the command palette (Crtl+ Shift + P) find and run "Table of Comments: Show"
+
+2. Adding a keystroke binding within your preferences (recommended)
+   Open "Preferenes -> Key Bindings - User" from the main menu then paste
+
+   { "keys": ["f1"], "command": "table_of_comments" }
 
 
 Thank you!
 -------------------------------
-I hope you enjoy using this plugin - and that it saves you some time as well.  You can learn more or get in contact at https://github.com/kizza/CSS-Less-ish
+I hope you enjoy using this plugin - and that it saves you some time as well.  You can learn more or get in contact at https://github.com/kizza/Table-of-comments
 

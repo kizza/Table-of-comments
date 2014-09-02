@@ -1,17 +1,22 @@
 /*
-* > Header
+* TOC
+* 
+* Heading 1
+*  - Heading 2
+*  - Heading 3
+*/
+
+/*
+* > Heading 1
 */
 header { background:#000; padding:0; }
 
 /*
-* >> Logo
+* >> Heading 2
 */
 .logo { float:left; width:200px; }
 
 /*
-* >> Nav
+* >>> Heading 3
 */
 nav { float:right; }
-
-/* >>> Sidebar nav */
-.sidebar nav { font-size:80%; }
