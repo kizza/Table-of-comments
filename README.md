@@ -56,3 +56,7 @@ For example placing...
 ```
 
 (You can change the title for your table of contents within the plugin settings.  For example, you can change "TOC" to be "Within this document", then simply place that text within a comment in your document to have the table of content maintained with that title.)
+
+### Customising the plugin
+
+Copy "tableofcomments.sublime-settings" from the plugin directory to your "Packages/User" directory then tweak the settings for parsing titles or formatting the table of contents output.
