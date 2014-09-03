@@ -1,6 +1,6 @@
 # Table of comments
 
-A [Sublime Text 2 & 3](http://www.sublimetext.com) plugin that lets you organise and quick-jump between headings in your comments as well as optionally outputing a live table of contents.
+A [Sublime Text 2 & 3](http://www.sublimetext.com) plugin that lets you organise and quick-jump between headings in your comments as well as optionally output a live table of contents.
 
 ![demo](http://imgur.com/uIhsQ8A.gif)
 

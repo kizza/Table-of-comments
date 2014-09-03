@@ -1,4 +1,4 @@
-This plugin lets you organise and quick-jump between headings in your comments as well as optionally outputing a live table of contents.
+This plugin lets you organise and quick-jump between headings in your comments as well as optionally output a live table of contents.
 
 How to use it
 -------------------------------
