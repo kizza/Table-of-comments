@@ -1,10 +1,10 @@
 # Table of comments
 
-A [Sublime Text 2 & 3](http://www.sublimetext.com) plugin that lets you organise and quick-jump between headings in your comments as well as optionally output a live table of contents too.
+A [Sublime Text 2 & 3](http://www.sublimetext.com) plugin that lets you organise and quick-jump between headings in your comments as well as optionally outputing a live table of contents.
 
 ![demo](http://imgur.com/uIhsQ8A.gif)
 
-Organise your code with headings within your comments then run the plugin to open the quick-jump panel to easily navigate between sections of your document. Not only does it help you navigate your code quickly with custom headings, it keeps you organised and mindful of the overall structure of your document.
+Organise your code with headings within your comments then run the plugin to open the quick-jump panel and easily navigate between sections of your document. Not only does it help you navigate your code quickly with custom headings, it keeps you organised and mindful of the overall structure of your document.
 
 ### How to use it
 
@@ -21,9 +21,9 @@ By default titles are represented by ">" but each title prefix can be customised
 */
 ```
 
-### Jumping between titles
+### Jumping between headings
 
-It is easiest to run the plugin via a keybinding so that you can open the quick-jump menu quickly whilst typing.
+The easiest way to run the plugin is via a keybinding so that you can open the quick-jump menu quickly whilst typing.
 
 1. Add a keystroke binding within your preferences (recommended)
    Open "Preferenes -> Key Bindings - User" from the main menu then paste
@@ -43,7 +43,7 @@ For example placing...
 
 ```/* TOC */```
 
-...anywhere in your document will automatically it update to reflect the headings in your comments each time you run the plugin.
+...anywhere in your document will automatically update it to reflect the headings within your comments each time you run the plugin.
 
 ```
 /*
@@ -55,7 +55,7 @@ For example placing...
 */
 ```
 
-(You can change the title for your table of contents within the plugin settings.  For example, you can change "TOC" to be "Within this document", then simply place that text within a comment in your document to have the table of content maintained with that title.)
+(You can change the title for your table of contents within the plugin settings.  For example, you can change "TOC" to be "Within this document", then simply place that text within a comment in your document to have the table of content maintained with that heading.)
 
 ### Customising the plugin
 
