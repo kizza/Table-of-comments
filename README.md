@@ -59,4 +59,9 @@ For example placing...
 
 ### Customising the plugin
 
-Copy "tableofcomments.sublime-settings" from the plugin directory to your "Packages/User" directory then tweak the settings for parsing titles or formatting the table of contents output.
+You can tweak the plugin settings for parsing headings (ie. which characters designate each level of headings) as well as for formatting the table of contents output.
+
+To view the existing plugin settings run the command "Table of comments: Settings - Default" from the command palette (Ctrl + Shift + P).
+Then run "Table of comments: Settings - User" and paste in any of the settings you wish to change.
+
+Ultimately the above creates a "tableofcomments.sublime-settings" file in your "Packages/User" directory.
