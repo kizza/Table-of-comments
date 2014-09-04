@@ -23,7 +23,6 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 			toc = self.compile_toc(view)
 			existing = view.substr(region)
 			if existing != toc:
-				print "changed"
 				view.replace(edit, region, toc)
 
 	def compile_toc(self, view):
@@ -40,7 +39,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 			if ' -- ' in title:
 				l = 3
 			elif ' - ' in title:
-				l = 2;
+				l = 2
 			if level >= l:
 				output+= front + title
 		output+= "\n"+end
@@ -67,7 +66,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		comment       = '|'.join(comment_chars)
 		start         = '\s|'+re.escape(comment).replace('\|', '|')
 
-		pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s)+('+start+')*?$'
+		pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
 		matches = view.find_all(pattern)
 		results = []
 		for region in matches:
