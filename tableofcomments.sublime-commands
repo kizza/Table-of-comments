@@ -1,6 +1,16 @@
 [
-    {
-        "caption": "Table of Comments: Show",
-        "command": "table_of_comments"
-    }
+	{
+		"caption": "Table of Comments: Show",
+		"command": "table_of_comments"
+	},
+	{
+		"caption": "Table of Comments: Settings - Default",
+		"command": "open_file",
+		"args": {"file": "${packages}/Table of comments/tableofcomments.sublime-settings"}
+	},
+	{
+		"caption": "Table of Comments: Settings - User",
+		"command": "open_file",
+		"args": {"file": "${packages}/User/tableofcomments.sublime-settings"}
+	}
 ]
