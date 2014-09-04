@@ -35,9 +35,9 @@ The easiest way to run the plugin is via a keybinding so that you can open the q
 2. You can also run the plugin via the command palette (Crtl+ Shift + P). Simply find and execute "Table of Comments: Show"
 
 
-### Outputting a table of contents
+### Outputting a table of contents (optional)
 
-You can optionally output a maintained list of the headings within your document by placing "TOC" inside a comment anywhere within the document.
+You can optionally output a maintained list of the headings within your document by placing "TOC" inside a separate comment anywhere within the document.
 
 For example placing...
 
