@@ -15,15 +15,21 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		self.window = sublime.active_window()
 		self.window.show_quick_panel(self.disabled_packages, self.on_list_selected_done)
 
-	def create_toc(self, view, edit):
+	def get_toc_region(self, view):
 		title = get_setting('toc_title', str)
 		pattern = r'\/\*(\s|\*)*'+title+r'[^\/]*\/'
 		matches = view.find_all(pattern)
 		for region in (matches):
-			toc = self.compile_toc(view)
-			existing = view.substr(region)
-			if existing != toc:
-				view.replace(edit, region, toc)
+			return region
+		return None
+
+	def create_toc(self, view, edit):
+		region = self.get_toc_region(view)
+		#for region in (matches):
+		toc = self.compile_toc(view)
+		existing = view.substr(region)
+		if existing != toc:
+			view.replace(edit, region, toc)
 
 	def compile_toc(self, view):
 		titles = self.get_comment_titles(view, 'string')
@@ -66,35 +72,45 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		comment       = '|'.join(comment_chars)
 		start         = '\s|'+re.escape(comment).replace('\|', '|')
 
-		pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
-		matches = view.find_all(pattern)
-		results = []
-		for region in matches:
-			# Ensure it's comment or source
-			scope = view.scope_name(region.a)
-			if scope.find('comment.') < 0 and scope.find('source.') < 0:
-				continue
-			line = view.substr(view.line(region.b))
-			line = view.substr(sublime.Region(region.a, view.line(region.b).b))
-			if level1 in line or level2 in line or level3 in line:
+		pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
+		matches    = view.find_all(pattern)
+		results    = []
+		toc_title  = get_setting('toc_title', str)
+		toc_region = self.get_toc_region(view)
+		for match in matches:
+			bits = view.lines(match)	# go through each line
+			for region in bits:
+				# Ensure it's comment or source
+				scope = view.scope_name(region.a)
+				if scope.find('comment.') < 0 and scope.find('source.') < 0:
+					continue
+				# Don't match headings within the toc region (for "" level 1 headings)
+				if toc_region:
+					if region.a > toc_region.a and region.a < toc_region.b:
+						continue
+				#line = view.substr(view.line(region.b))
+				line = view.substr(region)
+				#line = view.substr(sublime.Region(region.a, view.line(region.b).b))
+				if level1 in line or level2 in line or level3 in line:
 
-				# Format the line as a label
-				line = line.replace('/*', '').replace('*/', '')
-				for char in comment_chars:
-					line = line.replace(char, '')
-				if level3 in line:
-					line = ' -- '+line.replace(level3, '').strip()
-				elif level2 in line:
-					line = ' - '+line.replace(level2, '').strip()
-				elif level1 in line:
-					line = ''+line.replace(level1, '').strip()
+					# Format the line as a label
+					line = line.replace('/*', '').replace('*/', '')
+					for char in comment_chars:
+						line = line.replace(char, '')
+					if level3 in line:
+						line = ' -- '+line.replace(level3, '').strip()
+					elif level2 in line:
+						line = ' - '+line.replace(level2, '').strip()
+					elif level1 in line:
+						line = ''+line.replace(level1, '').strip()
 
-				# Get the position
-				line_no, col_no = view.rowcol(region.b)
-				if format == 'dict':
-					results.append( {'label':line, 'line':line_no} )
-				else:
-					results.append( line )
+					# Get the position
+					if line!='' and line!=toc_title:
+						line_no, col_no = view.rowcol(region.b)
+						if format == 'dict':
+							results.append( {'label':line, 'line':line_no} )
+						else:
+							results.append( line )
 		return results
 
 #
