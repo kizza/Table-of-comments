@@ -9,7 +9,7 @@ import sublime, sublime_plugin, re
 class table_of_comments_command(sublime_plugin.TextCommand):
 	def run(self, edit):
 		view = self.view
-		self.create_toc(view, edit)
+		self.create_toc(view, edit);
 		titles = self.get_comment_titles(view, 'string')
 		self.disabled_packages = titles
 		self.window = sublime.active_window()
