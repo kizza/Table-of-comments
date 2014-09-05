@@ -1,6 +1,6 @@
 # Table of comments
 
-A [Sublime Text 2 & 3](http://www.sublimetext.com) plugin that lets you organise and quick-jump between headings in your comments as well as optionally output a live table of contents.
+A [Sublime Text 2 & 3](http://www.sublimetext.com) plugin that lets you organise and quick-jump between headings in your comments (like "jump to symbol") as well as optionally output a live table of contents within your document.
 
 ![demo](http://imgur.com/uIhsQ8A.gif)
 
@@ -34,6 +34,7 @@ The easiest way to run the plugin is via a keybinding so that you can open the q
    
 2. You can also run the plugin via the command palette (Crtl+ Shift + P). Simply find and execute "Table of Comments: Show"
 
+Then just like how you are able to quick-jump between functions and selectors you can now jump between the documentation and comment headings within your document.
 
 ### Outputting a table of contents (optional)
 
@@ -65,3 +66,50 @@ To view the existing plugin settings run the command "Table of comments: Setting
 Then run "Table of comments: Settings - User" and paste in any of the settings you wish to change.
 
 Ultimately the above creates a "tableofcomments.sublime-settings" file in your "Packages/User" directory.
+
+#### Changing the heading characters
+
+For example you can use colons to designate level headings...
+
+```
+/*
+* : Heading 1
+*
+* :: Heading 2
+*
+* ::: Heading 3
+*/
+```
+
+By using the setting...
+
+
+```
+"level_1_char": ":",
+"level_2_char": "::",
+"level_3_char": ":::"
+```
+
+#### Tweaking the table of comments title
+
+Rather than "TOC" designating the comment to be updated with your table of contents you could enter the setting...
+
+```
+"toc_title":"Within this document"
+```
+
+Which means you can use the comment below to manage your table of contents
+
+```
+/* Within this document */
+```
+
+#### Only showing first level headings within the table of comments
+
+If you've dilegently organised lots of first, second and third headings within your document for the purposes of quick-jumping around, it may be too much to display them all within the table of comments.
+
+You could of course not include the /* TOC */ comment in your document, or use the setting below to only show first level headings.
+
+```
+"toc_level":"1"
+```
