@@ -25,11 +25,12 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 
 	def create_toc(self, view, edit):
 		region = self.get_toc_region(view)
-		#for region in (matches):
-		toc = self.compile_toc(view)
-		existing = view.substr(region)
-		if existing != toc:
-			view.replace(edit, region, toc)
+		if region:
+			#for region in (matches):
+			toc = self.compile_toc(view)
+			existing = view.substr(region)
+			if existing != toc:
+				view.replace(edit, region, toc)
 
 	def compile_toc(self, view):
 		titles = self.get_comment_titles(view, 'string')
@@ -69,8 +70,8 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 
 		comment_chars = get_setting('comment_chars', str)
 		comment_chars = list(comment_chars)
-		comment       = '|'.join(comment_chars)
-		start         = '\s|'+re.escape(comment).replace('\|', '|')
+		comment       = 'DIV'.join(comment_chars)
+		start         = r'\s|'+re.escape(comment).replace('DIV', '|')
 
 		pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
 		matches    = view.find_all(pattern)
