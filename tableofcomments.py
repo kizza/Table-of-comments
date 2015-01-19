@@ -73,7 +73,11 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		comment       = 'DIV'.join(comment_chars)
 		start         = r'\s|'+re.escape(comment).replace('DIV', '|')
 
-		pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
+		# Previous attempt
+		#pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
+
+		# Thanks @ionutvmi!
+		pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|[-.,;\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
 		matches    = view.find_all(pattern)
 		results    = []
 		toc_title  = get_setting('toc_title', str)
