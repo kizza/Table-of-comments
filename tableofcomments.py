@@ -38,17 +38,18 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		start  = get_setting('toc_start', str)
 		line   = get_setting('toc_line', str)
 		end    = get_setting('toc_end', str)
-		level  = get_setting('toc_level', int)
 		front  = "\n"+ line
-		output = start + front + title + front	
+		output = start + front + title + front
+
 		for title in titles:
-			l = 1
-			if ' -- ' in title:
-				l = 3
-			elif ' - ' in title:
-				l = 2
-			if level >= l:
-				output+= front + title
+			comment_level = title.count('-') + 1
+			try:
+				level = int(get_setting('toc_level', int))
+				if level >= comment_level:
+					output += front + title
+			except TypeError:
+				output += front + title
+
 		output+= "\n"+end
 		return output
 
@@ -61,53 +62,50 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		line_region = self.view.line(point)
 		self.view.sel().clear()
 		self.view.sel().add(line_region.b)
-		self.view.show_at_center(line_region.b)	
+		self.view.show_at_center(line_region.b)
 
 	def get_comment_titles(self, view, format='dict'):
-		level1 = get_setting('level_1_char', str)
-		level2 = get_setting('level_2_char', str)
-		level3 = get_setting('level_3_char', str)
-
+		level_char    = get_setting('level_char', str)
 		comment_chars = get_setting('comment_chars', str)
 		comment_chars = list(comment_chars)
 		comment       = 'DIV'.join(comment_chars)
 		start         = r'\s|'+re.escape(comment).replace('DIV', '|')
 
-		# Previous attempt
+		# Original attempt
 		#pattern = '^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|-)+('+start+')*?$'
 
-		# Thanks @ionutvmi!
-		pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|[-.,;\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
-		matches    = view.find_all(pattern)
-		results    = []
-		toc_title  = get_setting('toc_title', str)
-		toc_region = self.get_toc_region(view)
+		# Allowed more characters within the comment title - thanks @ionutvmi!
+		#pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|[-.,;\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
+		
+		# Allows unlimited number of comment title depths - thanks @MalcolmK!
+		pattern    = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*?(\w|\s|[-.,;:\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
+		matches   = view.find_all(pattern)
+		results   = []
+		toc_title = get_setting('toc_title', str)
+
+
 		for match in matches:
 			bits = view.lines(match)	# go through each line
 			for region in bits:
 				# Ensure it's comment or source
-				scope = view.scope_name(region.a)
-				if scope.find('comment.') < 0 and scope.find('source.') < 0:
+				if not self.is_scope_or_comment(view, region):
 					continue
-				# Don't match headings within the toc region (for "" level 1 headings)
-				if toc_region:
-					if region.a > toc_region.a and region.a < toc_region.b:
-						continue
+
+				if self.is_in_toc_region(view, region):
+					continue
+
 				#line = view.substr(view.line(region.b))
 				line = view.substr(region)
 				#line = view.substr(sublime.Region(region.a, view.line(region.b).b))
-				if level1 in line or level2 in line or level3 in line:
 
+				if level_char in line:
 					# Format the line as a label
 					line = line.replace('/*', '').replace('*/', '')
 					for char in comment_chars:
 						line = line.replace(char, '')
-					if level3 in line:
-						line = ' -- '+line.replace(level3, '').strip()
-					elif level2 in line:
-						line = ' - '+line.replace(level2, '').strip()
-					elif level1 in line:
-						line = ''+line.replace(level1, '').strip()
+
+					# Replace level char with toc char
+					line = self.replace_level_chars(line)
 
 					# Get the position
 					if line!='' and line!=toc_title:
@@ -117,6 +115,26 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 						else:
 							results.append( line )
 		return results
+
+	def is_in_toc_region(self, view, region):
+		toc_region = self.get_toc_region(view)
+		if toc_region:
+			if region.a > toc_region.a and region.a < toc_region.b:
+				return True
+		return False
+
+	def is_scope_or_comment(self, view, region):
+		scope = view.scope_name(region.a)
+		if scope.find('comment.') < 0 and scope.find('source.') < 0:
+			return False
+		return True
+
+	def replace_level_chars(self, line):
+		level_char = get_setting('level_char', str)
+		toc_char = get_setting('toc_char', str)
+		line = line.replace(level_char+' ', ' ')
+		line = line.replace(level_char, toc_char).strip()
+		return line
 
 #
 # Helpers

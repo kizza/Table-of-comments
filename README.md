@@ -51,8 +51,9 @@ For example placing...
 * TOC
 *
 * Heading 1
-*  - Heading 2
-*  -- Heading 3
+* - Heading 2
+* -- Heading 3
+* --- Heading 4
 */
 ```
 
@@ -83,11 +84,8 @@ For example you can use colons to designate level headings...
 
 By using the setting...
 
-
 ```
-"level_1_char": ":",
-"level_2_char": "::",
-"level_3_char": ":::"
+"level_char": ":",
 ```
 
 #### Tweaking the table of comments title
