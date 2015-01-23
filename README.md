@@ -36,6 +36,31 @@ The easiest way to run the plugin is via a keybinding so that you can open the q
 
 Then just like how you are able to quick-jump between functions and selectors you can now jump between the documentation and comment headings within your document.
 
+### Moving up and down through comments
+
+There is also a default keyboard shortcut for moving up and down through the comments. (Also a mouse wheel can be used insead of up/down keys, with the same modifiers).
+
+**Usage (Linux / Windows)**	
+```
+Previous Title    alt + up
+Next Title        alt + down
+```
+**Usage (OSX)**	
+```
+Previous Title    ctrl + up
+Next Title        ctrl + down
+```
+
+You can customize these keybindings via "Preferenes -> Key Bindings - User" from the main menu. For example...
+
+   ```
+   { "keys": ["alt+up"],   "command": "table_of_comments", "args":{ "move":"up" } }
+   { "keys": ["alt+down"], "command": "table_of_comments", "args":{ "move":"up" } }
+   ```
+
+(This behaviour inspired by by [Sublime Move By Symbols](https://packagecontrol.io/packages/Move%20By%20Symbols) plugin)
+
+
 ### Outputting a table of contents (optional)
 
 You can optionally output a maintained list of the headings within your document by placing "TOC" inside a separate comment anywhere within the document.

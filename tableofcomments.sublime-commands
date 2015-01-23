@@ -4,6 +4,16 @@
 		"command": "table_of_comments"
 	},
 	{
+		"caption": "Table of Comments: Move Up",
+		"command": "table_of_comments",
+		"args": {"move": "up"}
+	},
+	{
+		"caption": "Table of Comments: Move Down",
+		"command": "table_of_comments",
+		"args": {"move": "down"}
+	},
+	{
 		"caption": "Table of Comments: Settings - Default",
 		"command": "open_file",
 		"args": {"file": "${packages}/Table of comments/tableofcomments.sublime-settings"}

@@ -5,16 +5,42 @@ import sublime, sublime_plugin, re
 #
 # Text Commands
 #
-#from datetime import date
 class table_of_comments_command(sublime_plugin.TextCommand):
-	def run(self, edit):
-		view = self.view
-		self.create_toc(view, edit);
-		titles = self.get_comment_titles(view, 'string')
-		self.disabled_packages = titles
-		self.window = sublime.active_window()
-		self.window.show_quick_panel(self.disabled_packages, self.on_list_selected_done)
 
+	def run(self, edit, move=None):
+		if move != None:
+			return self.traverse_comments(move)
+		else:
+			view = self.view
+			self.create_toc(view, edit);
+			titles = self.get_comment_titles(view, 'string')
+			self.disabled_packages = titles
+			self.window = sublime.active_window()
+			self.window.show_quick_panel(self.disabled_packages, self.on_list_selected_done)
+
+	# Allows moving up and down through comments
+	def traverse_comments(self, move):
+		view   = self.view
+		titles = self.get_comment_titles(view)
+		sel    = view.sel()
+		if len(sel) == 1:
+			current_line_no, col_no = view.rowcol(sel[0].b)
+			for x in range(len(titles)):
+				item = titles[x]
+				if move == 'up': # moving up
+					if item['line'] < current_line_no:
+						if x+1 < len(titles):
+							if titles[x+1]['line'] >= current_line_no:
+								return self.on_list_selected_done(x)
+						else:
+							return self.on_list_selected_done(x)
+				else:	# moving down
+					if item['line'] > current_line_no:
+						return self.on_list_selected_done(x)
+
+	#
+	# Table TOC tag
+	#
 	def get_toc_region(self, view):
 		title = get_setting('toc_title', str)
 		pattern = r'\/\*(\s|\*)*'+title+r'[^\/]*\/'
@@ -53,6 +79,10 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		output+= "\n"+end
 		return output
 
+	#
+	# Jump list quick menu
+	#
+
 	def on_list_selected_done(self, picked):
 		if picked == -1:
 			return
@@ -76,13 +106,12 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 
 		# Allowed more characters within the comment title - thanks @ionutvmi!
 		#pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|[-.,;\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
-		
+
 		# Allows unlimited number of comment title depths - thanks @MalcolmK!
 		pattern    = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*?(\w|\s|[-.,;:\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
 		matches   = view.find_all(pattern)
 		results   = []
 		toc_title = get_setting('toc_title', str)
-
 
 		for match in matches:
 			bits = view.lines(match)	# go through each line
@@ -135,6 +164,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		line = line.replace(level_char+' ', ' ')
 		line = line.replace(level_char, toc_char).strip()
 		return line
+
 
 #
 # Helpers
