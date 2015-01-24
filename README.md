@@ -11,6 +11,22 @@ to open the quick-jump panel and easily navigate between sections of your docume
 Not only does it help you navigate your code quickly with custom headings, 
 it keeps you organised and mindful of the overall structure of your document.
 
+
+### How to install
+
+**Via package control**  
+Open your command palette -> Package Control: Install Package -> Table of comments
+
+**Manual**
+
+Go to your packages folder(Preferences -> Browse Packages)
+```bash
+# clone this repo
+git clone https://github.com/kizza/Table-of-comments 'Table of comments'
+```
+Or download the leatest [release](https://github.com/kizza/Table-of-comments/releases) 
+and unzip it in a folder named `Table of comments`
+
 ### How to use it
 
 Simply start using headings within comments to organise your code using the format below.
