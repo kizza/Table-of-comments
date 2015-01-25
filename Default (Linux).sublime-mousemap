@@ -1,6 +1,0 @@
-[
-	{ "button": "scroll_up", "modifiers": ["alt"], "command": "table_of_comments",
-		"args": {"move": "up"}},
-	{ "button": "scroll_down", "modifiers": ["alt"], "command": "table_of_comments",
-		"args": {"move": "down"}}
-]
