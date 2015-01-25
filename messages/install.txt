@@ -20,18 +20,17 @@ By default titles are represented by ">" but each title prefix can be customised
 */
 ```
 
-Now open the command palette(Ctrl+Shift+P) and search for the `Table of Comments: Show`
+Now open the command palette (Ctrl+Shift+P) and search for the `Table of Comments: Show`
 command and press enter.
 
 
+Available commands:
 
-Commands available:
-
-    - Table of Comments: Show -- Will show/generate the table of comments
-    - Table of Comments: Move Up  -- move the cursor to the previous comment
-    - Table of Comments: Move Down  -- move the cursor to the next comment
-    - Table of Comments: Settings - Default  -- open the default settings file
-    - Table of Comments: Settings - User   -- move the user settings file
+    - Table of Comments: Show  -- Will show/generate the table of comments.
+    - Table of Comments: Move Up  -- Move the cursor to the previous comment.
+    - Table of Comments: Move Down  -- Move the cursor to the next comment.
+    - Table of Comments: Settings - Default  -- Open the default settings file.
+    - Table of Comments: Settings - User   -- Move the user settings file.
 
 
 Setting keyboard shortcuts:
