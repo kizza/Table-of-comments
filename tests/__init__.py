@@ -17,32 +17,7 @@ else:
 	from .test_comment_syntax import TestCommentSyntax
 	from .test_toc_output import TestTocOutput
 
-#
-# Reload module functionality (borrowed from sublimelint for ease when developing/debugging)
-#
-# Listing each test class below ensures it's refreshed in sublimetext as you're 
-# testing and developing (otherwise it'll execute old versions sometimes)
-#
-def reload_modules():
-	if sys.version_info < (3, 0):
-	 	pass
-	else:
-	 	return
-	load_module('tests')
-	load_module('tests.testcase')
-	load_module('tests.test_get_comment_titles')
-	load_module('tests.test_level_depth')
-	load_module('tests.test_level_chars')
-	load_module('tests.test_comment_syntax')
-	load_module('tests.test_toc_output')
 
-import os
-basedir = os.getcwd()
-def load_module(path):
-	os.chdir(basedir)
-	print("--Reloading "+path)
-	__import__(path)
-	sys.modules[path] = reload(sys.modules[path])
 
 
 #
