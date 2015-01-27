@@ -1,6 +1,0 @@
-[
-	{ "keys": ["alt+up"], "command": "table_of_comments",
-		"args": {"move": "up"}},
-	{ "keys": ["alt+down"], "command": "table_of_comments",
-		"args": {"move": "down"}}
-]
