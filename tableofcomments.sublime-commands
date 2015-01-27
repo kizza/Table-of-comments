@@ -14,6 +14,10 @@
 		"args": {"move": "down"}
 	},
 	{
+		"caption": "Table of Comments: Run Tests",
+		"command": "table_of_comments_run_tests"
+	},
+	{
 		"caption": "Table of Comments: Settings - Default",
 		"command": "open_file",
 		"args": {"file": "${packages}/Table of comments/tableofcomments.sublime-settings"}

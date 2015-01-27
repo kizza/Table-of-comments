@@ -1,9 +1,10 @@
-import sublime, sublime_plugin, re
+import sys, sublime, sublime_plugin, re
+
 
 """ Plugin to create a quick panel lookup that lets you jump between comment titles"""
 
 #
-# Text Commands
+# Run plugin
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
@@ -12,16 +13,16 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 			return self.traverse_comments(move)
 		else:
 			view = self.view
-			self.create_toc(view, edit);
-			titles = self.get_comment_titles(view, 'string')
-			self.disabled_packages = titles
+			toc = TableOfComments(view, edit)
+			toc.create_toc();
+			titles = toc.get_comment_titles('string')
 			self.window = sublime.active_window()
-			self.window.show_quick_panel(self.disabled_packages, self.on_list_selected_done)
+			self.window.show_quick_panel(titles, toc.on_list_selected_done)
 
 	# Allows moving up and down through comments
 	def traverse_comments(self, move):
 		view   = self.view
-		titles = self.get_comment_titles(view)
+		titles = self.get_comment_titles()
 		sel    = view.sel()
 		if len(sel) == 1:
 			current_line_no, col_no = view.rowcol(sel[0].b)
@@ -38,9 +39,16 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 					if item['line'] > current_line_no:
 						return self.on_list_selected_done(x)
 
-	#
-	# Table TOC tag
-	#
+class TableOfComments:
+
+	def __init__(self, view, edit):
+		self.view = view
+		self.edit = edit
+
+#
+# Table TOC tag
+#
+
 	def get_toc_region(self, view):
 		title = get_setting('toc_title', str)
 		pattern = r'\/\*(\s|\*)*'+title+r'[^\/]*\/'
@@ -49,17 +57,18 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 			return region
 		return None
 
-	def create_toc(self, view, edit):
+	def create_toc(self):
+		view = self.view
+		edit = self.edit
 		region = self.get_toc_region(view)
 		if region:
-			#for region in (matches):
 			toc = self.compile_toc(view)
 			existing = view.substr(region)
 			if existing != toc:
 				view.replace(edit, region, toc)
 
 	def compile_toc(self, view):
-		titles = self.get_comment_titles(view, 'string')
+		titles = self.get_comment_titles('string')
 		title  = get_setting('toc_title', str)
 		start  = get_setting('toc_start', str)
 		line   = get_setting('toc_line', str)
@@ -79,14 +88,11 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		output+= "\n"+end
 		return output
 
-	#
-	# Jump list quick menu
-	#
-
+	# Jump list quick menu selected
 	def on_list_selected_done(self, picked):
 		if picked == -1:
 			return
-		titles = self.get_comment_titles(self.view)
+		titles = self.get_comment_titles()
 		row = titles[picked]['line']
 		point = self.view.text_point(row, 0)
 		line_region = self.view.line(point)
@@ -94,7 +100,9 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		self.view.sel().add(line_region.b)
 		self.view.show_at_center(line_region.b)
 
-	def get_comment_titles(self, view, format='dict'):
+	# Core parse function (returned as dict or list)
+	def get_comment_titles(self, format='dict'):
+		view          = self.view
 		level_char    = get_setting('level_char', str)
 		comment_chars = get_setting('comment_chars', str)
 		comment_chars = list(comment_chars)
@@ -108,7 +116,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 		#pattern    = r'^('+start+')*?('+format_pattern(level1)+'|'+format_pattern(level2)+'|'+format_pattern(level3)+')\s*?(\w|\s|[-.,;\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
 
 		# Allows unlimited number of comment title depths - thanks @MalcolmK!
-		pattern    = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*?(\w|\s|[-.,;:\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
+		pattern   = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*?(\w|\s|[-.,;:\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
 		matches   = view.find_all(pattern)
 		results   = []
 		toc_title = get_setting('toc_title', str)
@@ -123,10 +131,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 				if self.is_in_toc_region(view, region):
 					continue
 
-				#line = view.substr(view.line(region.b))
 				line = view.substr(region)
-				#line = view.substr(sublime.Region(region.a, view.line(region.b).b))
-
 				if level_char in line:
 					# Format the line as a label
 					line = line.replace('/*', '').replace('*/', '')
@@ -190,3 +195,22 @@ def get_setting(name, typeof=str):
 			return ''
 		else:
 			return None
+
+
+#
+# Testing infrastructure
+#
+
+if sys.version_info < (3, 0):
+	import tests
+else:
+	from . import tests
+
+class table_of_comments_run_tests_command(sublime_plugin.TextCommand):
+	def run(self, edit):
+		tests.reload_modules()
+		tests.reload_modules()
+		tests.run(self.view, edit)
+
+
+
