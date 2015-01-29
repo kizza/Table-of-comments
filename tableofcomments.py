@@ -10,7 +10,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 
 	def run(self, edit, move=None):
 		if move != None:
-			return self.traverse_comments(move)
+			return self.traverse_comments(edit, move)
 		else:
 			view = self.view
 			toc = TableOfComments(view, edit)
@@ -20,10 +20,11 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 			self.window.show_quick_panel(titles, toc.on_list_selected_done)
 
 	# Allows moving up and down through comments
-	def traverse_comments(self, move):
-		view   = self.view
-		titles = self.get_comment_titles()
-		sel    = view.sel()
+	def traverse_comments(self, edit, move):
+		view = self.view
+		toc = TableOfComments(view, edit)
+		titles = toc.get_comment_titles()
+		sel = view.sel()
 		if len(sel) == 1:
 			current_line_no, col_no = view.rowcol(sel[0].b)
 			for x in range(len(titles)):
@@ -32,12 +33,12 @@ class table_of_comments_command(sublime_plugin.TextCommand):
 					if item['line'] < current_line_no:
 						if x+1 < len(titles):
 							if titles[x+1]['line'] >= current_line_no:
-								return self.on_list_selected_done(x)
+								return toc.on_list_selected_done(x)
 						else:
 							return self.on_list_selected_done(x)
 				else:	# moving down
 					if item['line'] > current_line_no:
-						return self.on_list_selected_done(x)
+						return toc.on_list_selected_done(x)
 
 class TableOfComments:
 
