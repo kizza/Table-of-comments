@@ -72,7 +72,7 @@ Here are some examples of the keybindings you can set in
 
    ```
    { "keys": ["alt+up"],   "command": "table_of_comments", "args":{ "move":"up" } }
-   { "keys": ["alt+down"], "command": "table_of_comments", "args":{ "move":"up" } }
+   { "keys": ["alt+down"], "command": "table_of_comments", "args":{ "move":"down" } }
    ```
 Feel free to set any keyboard shortcuts you like.
 
