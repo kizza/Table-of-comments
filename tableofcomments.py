@@ -25,7 +25,12 @@ class table_of_comments_command(sublime_plugin.TextCommand):
             toc.create_toc()
             titles = toc.get_comment_titles('string')
             self.window = sublime.active_window()
-            self.window.show_quick_panel(titles, toc.on_list_selected_done)
+            if sys.version_info < (3, 0):
+                self.window.show_quick_panel(titles, toc.on_list_selected_done)
+            else:
+                self.window.show_quick_panel(  # Pass on_highlighted callback
+                    titles, toc.on_list_selected_done, False, 0,
+                    toc.on_list_selected_done)
 
     # Allows moving up and down through comments
     def traverse_comments(self, edit, move):
@@ -109,7 +114,7 @@ class TableOfComments:
         point = self.view.text_point(row, 0)
         line_region = self.view.line(point)
         self.view.sel().clear()
-        self.view.sel().add(line_region.b)
+        self.view.sel().add(line_region)
         self.view.show_at_center(line_region.b)
 
     # Core parse function (returned as dict or list)
