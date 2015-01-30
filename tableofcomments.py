@@ -23,6 +23,12 @@ class table_of_comments_command(sublime_plugin.TextCommand):
             view = self.view
             toc = TableOfComments(view, edit)
             toc.create_toc()
+            # Store position for returning to
+            return_to = []
+            for each in view.sel():
+                return_to.append(each)
+            toc.return_to = return_to
+            # Pop up the panel
             titles = toc.get_comment_titles('string')
             self.window = sublime.active_window()
             if sys.version_info < (3, 0):
@@ -108,14 +114,18 @@ class TableOfComments:
     # Jump list quick menu selected
     def on_list_selected_done(self, picked):
         if picked == -1:
-            return
-        titles = self.get_comment_titles()
-        row = titles[picked]['line']
-        point = self.view.text_point(row, 0)
-        line_region = self.view.line(point)
-        self.view.sel().clear()
-        self.view.sel().add(line_region)
-        self.view.show_at_center(line_region.b)
+            self.view.sel().clear()
+            for each in self.return_to:
+                self.view.sel().add(each)
+            self.view.show(self.view.sel())
+        else:
+            titles = self.get_comment_titles()
+            row = titles[picked]['line']
+            point = self.view.text_point(row, 0)
+            line_region = self.view.line(point)
+            self.view.sel().clear()
+            self.view.sel().add(line_region)
+            self.view.show_at_center(line_region.b)
 
     # Core parse function (returned as dict or list)
     def get_comment_titles(self, format='dict', test=None):
