@@ -46,11 +46,12 @@ class TestCommentSyntax(testcase.TestCase):
         self.check_titles_match(titles)
 
     def check_titles_match(self, titles):
+        str = '`' + '`, `'.join(titles) + '`'
         for title in ['Heading 1', '- Heading 2', '-- Heading 3']:
             if title in titles:
                 self.ok()
             else:
-                self.error('Missing title ' + title)
+                self.error('Missing title `'+title+'` in '+str)
 
     def text_javascript(self):
         return """

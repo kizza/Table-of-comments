@@ -49,7 +49,6 @@ class TestTocOutput(testcase.TestCase):
 // >>> Heading 3
 """
 
-
     def result(self):
         return """
 /*

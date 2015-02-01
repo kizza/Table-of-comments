@@ -132,12 +132,14 @@ class TableOfComments:
         view = self.view
         level_char = get_setting('level_char', str)
         comment_chars = get_setting('comment_chars', str)
-        comment_chars = list(comment_chars)
+        escaped_chars = re.escape(comment_chars)
+        comment = list(comment_chars)
         comment = 'DIV'.join(comment_chars)
         start = r'\s|'+re.escape(comment).replace('DIV', '|')
-        # Allows unlimited number of comment title depths - thanks @MalcolmK!
-        pattern = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*?' + \
-            r'(\w|\s|[-.,;:\'"|{}<?\/\\\\*@#~!$%^=\(\)\[\]])+('+start+')*?$'
+        # build the pattern to match the comment
+        pattern = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*' + \
+            r'([^'+escaped_chars+']+)('+start+')*?$'
+
         matches = view.find_all(pattern)
         results = []
         toc_title = get_setting('toc_title', str)
@@ -151,24 +153,33 @@ class TableOfComments:
                 # Ensure not in toc region already
                 if self.is_in_toc_region(view, region):
                     continue
+
                 line = view.substr(region)
+                line_match = re.match(pattern, line)
+
+                if not line_match:
+                    continue
+
                 if level_char in line:
-                    # Format the line as a label
-                    line = line.replace('/*', '').replace('*/', '')
-                    for char in comment_chars:
-                        if char != level_char:
-                            line = line.replace(char, '')
+                    # Add the level chars
+                    label = line_match.group(2)
 
                     # Replace level char with toc char
-                    line = self.replace_level_chars(line)
+                    label = self.replace_level_chars(label)
+
+                    if label != '':
+                        label += ' '
+
+                    # append the heading text
+                    label += line_match.group(3).strip()
 
                     # Get the position
                     if line != '' and line != toc_title:
                         line_no, col_no = view.rowcol(region.b)
                         if format == 'dict':
-                            results.append({'label': line, 'line': line_no})
+                            results.append({'label': label, 'line': line_no})
                         else:
-                            results.append(line)
+                            results.append(label)
         return results
 
     def is_in_toc_region(self, view, region):
@@ -196,8 +207,8 @@ class TableOfComments:
     def replace_level_chars(self, line):
         level_char = get_setting('level_char', str)
         toc_char = get_setting('toc_char', str)
-        line = line.replace(level_char+' ', ' ')
-        line = line.replace(level_char, toc_char).strip()
+        # remove the last char so level one has no indent
+        line = line[:-1].replace(level_char, toc_char)
         return line
 
 
@@ -246,6 +257,8 @@ class table_of_comments_run_tests_command(sublime_plugin.TextCommand):
 
 # For developing, reload tests.* which in turn reloads it's sub packages
 basedir = os.getcwd()
+
+
 def reload_test_bootstrap():
     os.chdir(basedir)
     path = 'tests'
@@ -254,3 +267,9 @@ def reload_test_bootstrap():
         sys.modules[path] = reload(sys.modules[path])
     else:
         imp.reload(eval(path))
+
+
+def displaymatch(match):
+    if match is None:
+        return None
+    return '<Match: %r, groups=%r>' % (match.group(), match.groups())
