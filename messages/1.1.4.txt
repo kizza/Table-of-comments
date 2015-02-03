@@ -8,9 +8,10 @@
 
 -------------------------------
 
-Updates in 1.1.1:
+Updates in 1.1.4:
 
-    -
+    - Fixed several comment title parsing bugs
+    - Added feature to highlight titles as they are scrolled through via the quick-jump menu
 
 
 
