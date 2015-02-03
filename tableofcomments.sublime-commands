@@ -14,6 +14,11 @@
         "args": {"move": "down"}
     },
     {
+        "caption": "Table of Comments: Collapse",
+        "command": "table_of_comments",
+        "args": {"collapse": true}
+    },
+    {
         "caption": "Table of Comments: Run Tests",
         "command": "table_of_comments_run_tests"
     },

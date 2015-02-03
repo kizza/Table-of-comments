@@ -16,9 +16,11 @@ import re
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None):
+    def run(self, edit, move=None, collapse=False):
         if move is not None:
             return self.traverse_comments(edit, move)
+        elif collapse is True:
+            return self.collapse_comments(move)
         else:
             view = self.view
             toc = TableOfComments(view, edit)
@@ -58,6 +60,30 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                 else:  # moving down
                     if item['line'] > current_line_no:
                         return toc.on_list_selected_done(x)
+
+    def collapse_comments(self, edit):
+        toc = TableOfComments(self.view, edit)
+        comments = self.view.find_by_selector('comment')
+        titles = toc.get_comment_titles()
+        # Only get comment regions with titles within them
+        regions = []
+        for i in range(len(comments)):
+            region = comments[i]
+            for title in titles:
+                if region.contains(title['region']):
+                    regions.append(region)
+        # Create the fold regions
+        fold = []
+        for i in range(len(regions)):
+            region = regions[i]
+            for title in titles:
+                if region.contains(title['region']):
+                    fold_start = region.b + 1
+                    fold_end = self.view.size()
+                    if i < len(regions)-1:
+                        fold_end = regions[i+1].a - 1
+                    fold.append(sublime.Region(fold_start, fold_end))
+        self.view.fold(fold)
 
 
 #
@@ -186,7 +212,7 @@ class TableOfComments:
                         if format == 'dict':
                             results.append(
                                 {'label': label, 'text': text,
-                                    'line': line_no})
+                                    'region': region, 'line': line_no})
                         else:
                             results.append(label)
         return results
