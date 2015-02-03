@@ -124,7 +124,11 @@ class TableOfComments:
             row = title['line']
             point = self.view.text_point(row, 0)
             line_region = self.view.line(point)
-            text_region = self.view.find(title['text'], line_region.a)
+            text = title['text']
+            text = re.escape(text)
+            text = text.replace('\>', '>')  # ">" does not work when escaped
+            text_region = self.view.find(text,
+                                         line_region.a)
             self.view.sel().clear()
             self.view.sel().add(text_region)
             self.view.show_at_center(text_region.b)
