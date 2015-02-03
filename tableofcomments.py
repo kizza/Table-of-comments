@@ -128,7 +128,7 @@ class TableOfComments:
             text = re.escape(text)
             text = text.replace('\>', '>')  # ">" does not work when escaped
             text_region = self.view.find(text,
-                                         line_region.a)
+                                        line_region.a)
             self.view.sel().clear()
             self.view.sel().add(text_region)
             self.view.show_at_center(text_region.b)
@@ -185,7 +185,7 @@ class TableOfComments:
                         line_no, col_no = view.rowcol(region.b)
                         if format == 'dict':
                             results.append({'label': label,
-                                           'text': text,
+                                        'text': text,
                                             'line': line_no})
                         else:
                             results.append(label)
@@ -202,7 +202,14 @@ class TableOfComments:
     # This will no doubt need to be improved over time for various syntaxes
     # ('string.quoted' makes python """ comments """ not trigger)
     def is_scope_or_comment(self, view, region):
-        scope = view.scope_name(region.a)
+        line = view.substr(region)
+        # Trim to scope
+        # If line starts with whitespace, the syntax returned is "source" not
+        # "comment" for the initial char
+        trimmed = line.lstrip()
+        diff = len(line) - len(trimmed)
+        scope = view.scope_name(region.a + diff)
+        # Check out scope
         comments_scope = ['comment']
         disallow = ['string.quoted']
         for each in comments_scope:
