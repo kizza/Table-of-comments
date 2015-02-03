@@ -1,10 +1,8 @@
 import sys
 if sys.version_info < (3, 0):
     import testcase
-    from tableofcomments import TableOfComments
 else:
     from . import testcase
-    from ..tableofcomments import TableOfComments
 
 
 #
@@ -28,7 +26,7 @@ class TestGetCommentTitles(testcase.TestCase):
         self.set_settings({'level_char': '>'})
 
         # Run the basic parse function and check them
-        toc = TableOfComments(self.view, self.edit)
+        toc = self.get_plugin()
         titles = toc.get_comment_titles('string')
         for title in ['Heading 1', '- Heading 2', '-- Heading 3']:
             if title in titles:
@@ -48,3 +46,20 @@ class TestGetCommentTitles(testcase.TestCase):
 // >>> Heading 3
 
 """
+
+    # Fix for #26
+    def test_comment_char_within_comment(self):
+        self.set_syntax('javascript')
+        toc = self.get_plugin()
+
+        # Check with "-" char
+        self.set_settings({'level_char': '-'})
+        self.set_text('/* - Foo - Bar */')
+        titles = toc.get_comment_titles('string')
+        self.assert_true('Foo - Bar' in titles)
+
+        # Check with ">" char
+        self.set_settings({'level_char': '>'})
+        self.set_text('/* > Modules => My Module (Test 4) */')
+        titles = toc.get_comment_titles('string')
+        self.assert_true('Modules => My Module (Test 4)' in titles)

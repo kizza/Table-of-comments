@@ -17,7 +17,7 @@ class TestCommentSyntax(testcase.TestCase):
     # Using find() to check if result is correct
     def test_javascript_syntax(self):
         # Setup
-        self.view.set_syntax_file('Packages/JavaScript/JavaScript.tmLanguage')
+        self.set_syntax('javascript')
         self.set_settings({'level_char': '>'})
         self.set_text(self.text_javascript())
         # Test
@@ -28,6 +28,7 @@ class TestCommentSyntax(testcase.TestCase):
     def test_css_syntax(self):
         # Setup
         self.view.set_syntax_file('Packages/CSS/CSS.tmLanguage')
+        self.set_syntax('css')
         self.set_settings({'level_char': '#'})
         self.set_text(self.text_css())
         # Test
@@ -37,7 +38,7 @@ class TestCommentSyntax(testcase.TestCase):
 
     def test_python_syntax(self):
         # Setup
-        self.view.set_syntax_file('Packages/Python/Python.tmLanguage')
+        self.set_syntax('python')
         self.set_settings({'level_char': '>'})
         self.set_text(self.text_python())
         # Test
@@ -46,12 +47,11 @@ class TestCommentSyntax(testcase.TestCase):
         self.check_titles_match(titles)
 
     def check_titles_match(self, titles):
-        str = '`' + '`, `'.join(titles) + '`'
         for title in ['Heading 1', '- Heading 2', '-- Heading 3']:
             if title in titles:
                 self.ok()
             else:
-                self.error('Missing title `'+title+'` in '+str)
+                self.error('Missing title ' + title)
 
     def text_javascript(self):
         return """
@@ -85,6 +85,7 @@ var func = function(x){
 # > Heading 1
 def function(x):
     return x > 3
+
 # >> Heading 2
 
 # >>> Heading 3

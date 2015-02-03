@@ -139,7 +139,8 @@ def create_new_view(view):
 
 
 def get_test_output(test):
-    output = test.setup()
+    output = "\nRunning " + test.title + "\n" + "-" * 50 + "\n"
+    test.setup()
     output += test.run()
     test.teardown()
     return output

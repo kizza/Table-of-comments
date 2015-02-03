@@ -120,12 +120,14 @@ class TableOfComments:
             self.view.show(self.view.sel())
         else:
             titles = self.get_comment_titles()
-            row = titles[picked]['line']
+            title = titles[picked]
+            row = title['line']
             point = self.view.text_point(row, 0)
             line_region = self.view.line(point)
+            text_region = self.view.find(title['text'], line_region.a)
             self.view.sel().clear()
-            self.view.sel().add(line_region)
-            self.view.show_at_center(line_region.b)
+            self.view.sel().add(text_region)
+            self.view.show_at_center(text_region.b)
 
     # Core parse function (returned as dict or list)
     def get_comment_titles(self, format='dict', test=None):
@@ -171,13 +173,16 @@ class TableOfComments:
                         label += ' '
 
                     # append the heading text
-                    label += line_match.group(3).strip()
+                    text = line_match.group(3).strip()
+                    label += text
 
                     # Get the position
                     if line != '' and line != toc_title:
                         line_no, col_no = view.rowcol(region.b)
                         if format == 'dict':
-                            results.append({'label': label, 'line': line_no})
+                            results.append({'label': label,
+                                           'text': text,
+                                            'line': line_no})
                         else:
                             results.append(label)
         return results
