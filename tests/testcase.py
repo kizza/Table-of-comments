@@ -4,6 +4,12 @@ to write a test class easily """
 import sublime
 import inspect
 import re
+import sys
+
+if sys.version_info < (3, 0):
+    from tableofcomments import TableOfComments
+else:
+    from ..tableofcomments import TableOfComments
 
 
 class TestCase():
@@ -20,7 +26,6 @@ class TestCase():
     # Called before class is run
     def setup(self):
         self.view.set_syntax_file('Packages/JavaScript/JavaScript.tmLanguage')
-        return "\nRunning " + self.title + "\n" + "-" * 50 + "\n"
 
     # Runs all test methods
     def run(self):
@@ -60,8 +65,22 @@ class TestCase():
     def get_text(self):
         return self.view.substr(sublime.Region(0, self.view.size()))
 
+    def get_plugin(self):
+        # return ''
+        return TableOfComments(self.view, self.edit)
+
     def run_plugin(self):
         self.view.run_command('table_of_comments')
+
+    def set_syntax(self, syntax):
+        shortcuts = {
+            'javascript': 'Packages/JavaScript/JavaScript.tmLanguage',
+            'python': 'Packages/Python/Python.tmLanguage',
+            'css': 'Packages/CSS/CSS.tmLanguage'
+        }
+        if syntax in shortcuts.keys():
+            syntax = shortcuts[syntax]
+        self.view.set_syntax_file(syntax)
 
 #
 # Settings functions
@@ -103,6 +122,22 @@ class TestCase():
 #
 # Assert functions for unit tests
 #
+
+    def assert_true(self, value, msg='Was not true'):
+        if value is True:
+            self.ok()
+            return True
+        else:
+            self.error(msg)
+            return False
+
+    def assert_false(self, value, msg='Was not false'):
+        if value is False:
+            self.ok()
+            return True
+        else:
+            self.error(msg)
+            return False
 
     # Assert function to see if entire result text equals the sent text
     def text_equals(self, sent):

@@ -1,40 +1,40 @@
 {
-	/*
-	* Settings for parsing comment titles
-	*/
+    /*
+    * Settings for parsing comment titles
+    */
 
-	/*
-	 * The character you would like to be shown in the TOC for the
-	 * depth of the comment
-	 */
-	"toc_char"     : "-",
+    /*
+     * The character you would like to be shown in the TOC for the
+     * depth of the comment
+     */
+    "toc_char"     : "-",
 
-	/*
-	 * The character you use to mark a comment for the TOC.
-	 * // > Means level 1
-	 * // >> Means level 2
-	 * // etc.
-	 */
-	"level_char"   : ">",
+    /*
+     * The character you use to mark a comment for the TOC.
+     * // > Means level 1
+     * // >> Means level 2
+     * // etc.
+     */
+    "level_char"   : ">",
 
-	/*
-	* Table of contents options
-	*/
-	"toc_start": "/*",			// Start table of contents with
-	"toc_title": "TOC",			// Title to display (and look for) for table of contents creation
-	"toc_line": "* ",			// Prefix of each line within table of contents
-	"toc_end": "*/",			// End table of contents with
+    /*
+    * Table of contents options
+    */
+    "toc_start": "/*",          // Start table of contents with
+    "toc_title": "TOC",         // Title to display (and look for) for table of contents creation
+    "toc_line": "* ",           // Prefix of each line within table of contents
+    "toc_end": "*/",            // End table of contents with
 
-	/*
-	 * Enter the number of depth the comments should be visible in the TOC.
-	 * E.g. "toc_level": 1, to only show the top titles.
-	 * Use "toc_level": 0, to show all titles.
-	 */
-	"toc_level": 0,				// default 0
+    /*
+     * Enter the number of depth the comments should be visible in the TOC.
+     * E.g. "toc_level": 1, to only show the top titles.
+     * Use "toc_level": 0, to show all titles.
+     */
+    "toc_level": 0,             // default 0
 
-	/*
-	* These characters are allowed to appear before the parsed title within the comment
-	* (if unsure leave as is)
-	*/
-	"comment_chars": "/*#|"
+    /*
+    * These characters are allowed to appear before the parsed title within the comment
+    * (if unsure leave as is)
+    */
+    "comment_chars": "/*#|"
 }

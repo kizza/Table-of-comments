@@ -1,15 +1,14 @@
 /*
 * TOC
-* 
+*
 * Heading 1
 * - Heading 2
 * -- Heading 3
-* --- Heading 4
-* ---- Heading 5
 */
 
 /*
 * > Heading 1
+> Heading 1.1
 */
 header { background:#000; padding:0; }
 
@@ -21,8 +20,22 @@ header { background:#000; padding:0; }
 /* >>> Heading 3 */
 nav { float:right; }
 
-/* >>>> Heading 4 */
+/* >>>>            Heading 4 */
 nav { float:right; }
 
-/* >>>>> Heading 5 */
+/*>>>>> Heading 5 */
 nav { float:right; }
+
+/********* > My Module (Test 1) **************/
+
+/* > Modules => My Module (Test 4) */
+
+
+/*
+* # Heading 1
+*/
+#id { display:none } /* Should not show */
+
+/* ## Heading 2 */
+
+/* ### Heading 3 */
