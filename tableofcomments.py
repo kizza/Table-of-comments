@@ -5,6 +5,7 @@ titles
 
 import os
 import imp
+import time
 import sys
 import sublime
 import sublime_plugin
@@ -16,28 +17,38 @@ import re
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None):
+    def run(self, edit, move=None, debug=False):
         if move is not None:
-            return self.traverse_comments(edit, move)
+            self.traverse_comments(edit, move)
         else:
-            view = self.view
-            toc = TableOfComments(view, edit)
-            toc.create_toc()
-            # Store position for returning to
-            return_to = []
-            for each in view.sel():
-                return_to.append(each)
-            toc.return_to = return_to
-            # Pop up the panel
-            titles = toc.get_comment_titles('string')
-            self.window = sublime.active_window()
-            if sys.version_info < (3, 0):
-                self.window.show_quick_panel(titles, toc.on_list_selected_done)
-            else:
-                self.window.show_quick_panel(  # Pass on_highlighted callback
-                    titles, toc.on_list_selected_done, False, 0,
-                    toc.on_list_selected_done)
+            return self.show_quick_panel(edit, debug)
 
+    # >> Quick panel
+    def show_quick_panel(self, edit, debug):
+        view = self.view
+        toc = TableOfComments(view, edit)
+        toc.debug = debug
+        toc._debug_start('Show quick panel')
+        toc.create_toc()
+        # Store position for returning to
+        return_to = []
+        for each in view.sel():
+            return_to.append(each)
+        toc.return_to = return_to
+        # Pop up the panel
+        titles = toc.get_comment_titles('string')
+        self.window = sublime.active_window()
+        if sys.version_info < (3, 0):
+            self.window.show_quick_panel(titles, toc.on_list_selected_done)
+        else:
+            self.window.show_quick_panel(  # Pass on_highlighted callback
+                titles, toc.on_list_selected_done, False, 0,
+                toc.on_list_selected_done)
+        toc._debug_stop('Show quick panel')
+        if debug:
+            return toc.timers
+
+    # >> Up down
     # Allows moving up and down through comments
     def traverse_comments(self, edit, move):
         view = self.view
@@ -70,6 +81,20 @@ class TableOfComments:
         self.edit = edit
 
 #
+# Debug timing functions
+#
+#
+    timers = {}
+
+    def _debug_start(self, ref):
+        self.timers[ref] = time.time()
+
+    def _debug_stop(self, ref):
+        start_time = self.timers[ref]
+        duration = time.time() - start_time
+        self.timers[ref] = duration
+
+#
 # Table TOC tag
 #
 
@@ -93,6 +118,7 @@ class TableOfComments:
                 view.replace(edit, region, toc)
 
     def compile_toc(self, view):
+        self._debug_start('compile-toc')
         titles = self.get_comment_titles('string')
         title = get_setting('toc_title', str)
         start = get_setting('toc_start', str)
@@ -109,6 +135,7 @@ class TableOfComments:
             except TypeError:
                 output += front + title
         output += "\n"+end
+        self._debug_stop('compile-toc')
         return output
 
     # Jump list quick menu selected
@@ -135,6 +162,7 @@ class TableOfComments:
 
     # Core parse function (returned as dict or list)
     def get_comment_titles(self, format='dict', test=None):
+        self._debug_start('get-comment-titles')
         view = self.view
         level_char = get_setting('level_char', str)
         comment_chars = get_setting('comment_chars', str)
@@ -189,6 +217,7 @@ class TableOfComments:
                                     'line': line_no})
                         else:
                             results.append(label)
+        self._debug_stop('get-comment-titles')
         return results
 
     def is_in_toc_region(self, view, region):
