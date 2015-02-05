@@ -12,33 +12,36 @@ import re
 
 
 #
-# Plugin command
+# > Plugin command
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None, collapse=False):
+    def run(self, edit, move=None, fold=None):
         if move is not None:
-            return self.traverse_comments(edit, move)
-        elif collapse is True:
-            return self.collapse_comments(move)
+            self.traverse_comments(edit, move)
+        elif fold is not None:
+            self.fold_comments(edit, fold)
         else:
-            view = self.view
-            toc = TableOfComments(view, edit)
-            toc.create_toc()
-            # Store position for returning to
-            return_to = []
-            for each in view.sel():
-                return_to.append(each)
-            toc.return_to = return_to
-            # Pop up the panel
-            titles = toc.get_comment_titles('string')
-            self.window = sublime.active_window()
-            if sys.version_info < (3, 0):
-                self.window.show_quick_panel(titles, toc.on_list_selected_done)
-            else:
-                self.window.show_quick_panel(  # Pass on_highlighted callback
-                    titles, toc.on_list_selected_done, False, 0,
-                    toc.on_list_selected_done)
+            self.show_quick_panel(edit)
+
+    def show_quick_panel(self, edit):
+        view = self.view
+        toc = TableOfComments(view, edit)
+        toc.create_toc()
+        # Store position for returning to
+        return_to = []
+        for each in view.sel():
+            return_to.append(each)
+        toc.return_to = return_to
+        # Pop up the panel
+        titles = toc.get_comment_titles('string')
+        self.window = sublime.active_window()
+        if sys.version_info < (3, 0):
+            self.window.show_quick_panel(titles, toc.on_list_selected_done)
+        else:
+            self.window.show_quick_panel(  # Pass on_highlighted callback
+                titles, toc.on_list_selected_done, False, 0,
+                toc.on_list_selected_done)
 
     # Allows moving up and down through comments
     def traverse_comments(self, edit, move):
@@ -61,10 +64,14 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                     if item['line'] > current_line_no:
                         return toc.on_list_selected_done(x)
 
-    def collapse_comments(self, edit):
+    def fold_comments(self, edit, fold):
         toc = TableOfComments(self.view, edit)
         comments = self.view.find_by_selector('comment')
         titles = toc.get_comment_titles()
+        # Current selection
+        sels = self.view.sel()
+        for each in sels:
+            sel = each
         # Only get comment regions with titles within them
         regions = []
         for i in range(len(comments)):
@@ -78,16 +85,18 @@ class table_of_comments_command(sublime_plugin.TextCommand):
             region = regions[i]
             for title in titles:
                 if region.contains(title['region']):
-                    fold_start = region.b + 1
-                    fold_end = self.view.size()
-                    if i < len(regions)-1:
-                        fold_end = regions[i+1].a - 1
-                    fold.append(sublime.Region(fold_start, fold_end))
-        self.view.fold(fold)
+                    if region.contains(sel) or fold == 'all':
+                        fold_start = region.b + 1
+                        fold_end = self.view.size()
+                        if i < len(regions)-1:
+                            fold_end = regions[i+1].a - 1
+                        fold.append(sublime.Region(fold_start, fold_end))
+        if self.view.fold(fold) is False:
+            self.view.unfold(fold)
 
 
 #
-# Plugin class
+# > Plugin class
 #
 class TableOfComments:
 
@@ -96,7 +105,7 @@ class TableOfComments:
         self.edit = edit
 
 #
-# Table TOC tag
+# >> Table TOC tag
 #
 
     def get_toc_region(self, view):
@@ -107,6 +116,13 @@ class TableOfComments:
             if self.is_scope_or_comment(view, region):
                 return region
         return None
+
+    def is_in_toc_region(self, view, region):
+        toc_region = self.get_toc_region(view)
+        if toc_region:
+            if region.a > toc_region.a and region.a < toc_region.b:
+                return True
+        return False
 
     def create_toc(self):
         view = self.view
@@ -137,6 +153,10 @@ class TableOfComments:
         output += "\n"+end
         return output
 
+#
+# >> Jump list
+#
+
     # Jump list quick menu selected
     def on_list_selected_done(self, picked):
         if picked == -1:
@@ -158,6 +178,10 @@ class TableOfComments:
             self.view.sel().clear()
             self.view.sel().add(text_region)
             self.view.show_at_center(text_region.b)
+
+#
+# >> Parse
+#
 
     # Core parse function (returned as dict or list)
     def get_comment_titles(self, format='dict', test=None):
@@ -198,7 +222,6 @@ class TableOfComments:
 
                     # Replace level char with toc char
                     label = self.replace_level_chars(label)
-
                     if label != '':
                         label += ' '
 
@@ -216,13 +239,6 @@ class TableOfComments:
                         else:
                             results.append(label)
         return results
-
-    def is_in_toc_region(self, view, region):
-        toc_region = self.get_toc_region(view)
-        if toc_region:
-            if region.a > toc_region.a and region.a < toc_region.b:
-                return True
-        return False
 
     # Only find titles within genuine comments
     # This will no doubt need to be improved over time for various syntaxes
