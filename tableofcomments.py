@@ -17,17 +17,16 @@ import re
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None, debug=False):
+    def run(self, edit, move=None):
         if move is not None:
             self.traverse_comments(edit, move)
         else:
-            return self.show_quick_panel(edit, debug)
+            return self.show_quick_panel(edit)
 
     # >> Quick panel
-    def show_quick_panel(self, edit, debug):
+    def show_quick_panel(self, edit):
         view = self.view
         toc = TableOfComments(view, edit)
-        toc.debug = debug
         toc._debug_start('Show quick panel')
         toc.create_toc()
         # Store position for returning to
@@ -45,8 +44,6 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                 titles, toc.on_list_selected_done, False, 0,
                 toc.on_list_selected_done)
         toc._debug_stop('Show quick panel')
-        if debug:
-            return toc.timers
 
     # >> Up down
     # Allows moving up and down through comments
