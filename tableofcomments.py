@@ -24,6 +24,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
         else:
             self.show_quick_panel(edit)
 
+    # >> Quick panel
     def show_quick_panel(self, edit):
         view = self.view
         toc = TableOfComments(view, edit)
@@ -43,6 +44,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                 titles, toc.on_list_selected_done, False, 0,
                 toc.on_list_selected_done)
 
+    # >> Up down
     # Allows moving up and down through comments
     def traverse_comments(self, edit, move):
         view = self.view
@@ -64,36 +66,39 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                     if item['line'] > current_line_no:
                         return toc.on_list_selected_done(x)
 
+    # >> Fold comments
     def fold_comments(self, edit, fold, unfold):
         toc = TableOfComments(self.view, edit)
         comments = self.view.find_by_selector('comment')
         titles = toc.get_comment_titles()
+        is_all = fold == 'all' or unfold == 'all'
         # Current selection
         sels = self.view.sel()
         for each in sels:
             sel = each
-        # Only get comment regions with titles within them
+        # Only get comment blocks with titles within them
         regions = []
         for i in range(len(comments)):
             region = comments[i]
             for title in titles:
                 if region.contains(title['region']):
                     regions.append(region)
-        # Create the fold regions
+        # Get the fold regions (content blocks)
         fold_regions = []
         for i in range(len(regions)):
             region = regions[i]
             for title in titles:
                 if region.contains(title['region']):
-                    if region.contains(sel) or \
-                            fold == 'all' or unfold == 'all':
-                        fold_start = region.b + 1
-                        fold_end = self.view.size()
-                        if i < len(regions)-1:
-                            fold_end = regions[i+1].a - 1
-                        fold_regions.append(
-                            sublime.Region(fold_start, fold_end)
-                            )
+                    fold_start = region.b + 1
+                    fold_end = self.view.size()
+                    if i < len(regions)-1:
+                        fold_end = regions[i+1].a - 1
+                    region_content = sublime.Region(fold_start, fold_end)
+                    if region.contains(sel) or is_all:
+                        fold_regions.append(region_content)
+                    elif region_content.contains(sel):
+                        fold_regions.append(region_content)
+
         # Fold, unfold or toggle
         if fold is not None:
             self.view.fold(fold_regions)
@@ -162,7 +167,7 @@ class TableOfComments:
         return output
 
 #
-# >> Jump list
+# >> Quick panel
 #
 
     # Jump list quick menu selected
