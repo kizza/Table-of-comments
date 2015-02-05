@@ -78,6 +78,20 @@ Feel free to set any keyboard shortcuts you like.
 
 (This behaviour inspired by by [Sublime Move By Symbols](https://packagecontrol.io/packages/Move%20By%20Symbols) plugin)
 
+### Folding and unfolding sections
+
+You can fold sections within comment titles using commands when the 
+cursor is within a comment title or toggle folding of all title sections.
+Here are some examples of the keybindings you can set in 
+"Preferenes -> Key Bindings - User" from the main menu.
+
+   ```
+   { "keys": ["alt+["], "command": "table_of_comments", "args":{ "fold":true } }
+   { "keys": ["alt+]"], "command": "table_of_comments", "args":{ "unfold":"true" } }
+
+   { "keys": ["alt+shift+["], "command": "table_of_comments", "args":{ "fold":"all" } }
+   { "keys": ["alt+shift+]"], "command": "table_of_comments", "args":{ "unfold":""all"" } }
+   ```
 
 ### Outputting a table of contents (optional)
 

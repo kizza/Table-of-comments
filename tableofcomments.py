@@ -16,11 +16,11 @@ import re
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None, fold=None):
+    def run(self, edit, move=None, fold=None, unfold=None):
         if move is not None:
             self.traverse_comments(edit, move)
-        elif fold is not None:
-            self.fold_comments(edit, fold)
+        elif fold is not None or unfold is not None:
+            self.fold_comments(edit, fold, unfold)
         else:
             self.show_quick_panel(edit)
 
@@ -64,7 +64,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                     if item['line'] > current_line_no:
                         return toc.on_list_selected_done(x)
 
-    def fold_comments(self, edit, fold):
+    def fold_comments(self, edit, fold, unfold):
         toc = TableOfComments(self.view, edit)
         comments = self.view.find_by_selector('comment')
         titles = toc.get_comment_titles()
@@ -80,19 +80,27 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                 if region.contains(title['region']):
                     regions.append(region)
         # Create the fold regions
-        fold = []
+        fold_regions = []
         for i in range(len(regions)):
             region = regions[i]
             for title in titles:
                 if region.contains(title['region']):
-                    if region.contains(sel) or fold == 'all':
+                    if region.contains(sel) or \
+                            fold == 'all' or unfold == 'all':
                         fold_start = region.b + 1
                         fold_end = self.view.size()
                         if i < len(regions)-1:
                             fold_end = regions[i+1].a - 1
-                        fold.append(sublime.Region(fold_start, fold_end))
-        if self.view.fold(fold) is False:
-            self.view.unfold(fold)
+                        fold_regions.append(
+                            sublime.Region(fold_start, fold_end)
+                            )
+        # Fold, unfold or toggle
+        if fold is not None:
+            self.view.fold(fold_regions)
+        elif unfold is not None:
+            self.view.unfold(fold_regions)
+        elif self.view.fold(fold_regions) is False:
+            self.view.unfold(fold_regions)
 
 
 #
