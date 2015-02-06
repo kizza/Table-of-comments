@@ -17,6 +17,7 @@ if sys.version_info < (3, 0):
     from tests.test_comment_syntax import TestCommentSyntax
     from tests.test_toc_output import TestTocOutput
     from .test_large_file import TestLargeFile
+    from .test_get_sections import TestGetSections
 else:
     from .test_get_comment_titles import TestGetCommentTitles
     from .test_level_depth import TestLevelDepth
@@ -24,6 +25,7 @@ else:
     from .test_comment_syntax import TestCommentSyntax
     from .test_toc_output import TestTocOutput
     from .test_large_file import TestLargeFile
+    from .test_get_sections import TestGetSections
 
 
 # Returns list of properties for each test class names matching "test_*.py"
@@ -92,7 +94,7 @@ def run(view, edit):
 
     # Customise test run (for specific items or order while developing)
     # tests = [
-    #     TestLargeFile(view, edit),
+    #     TestGetSections(view, edit),
     #     ]
 
     # Run tests for results
