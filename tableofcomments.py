@@ -18,19 +18,24 @@ import re
 class table_of_comments_command(sublime_plugin.TextCommand):
 
     def run(self, edit, move=None, fold=None, unfold=None):
+        toc = TableOfComments(self.view, edit)
         if move is not None:
-            self.traverse_comments(edit, move)
+            self.traverse_comments(toc, move)
         elif fold is not None or unfold is not None:
-            self.fold_comments(edit, fold, unfold)
+            self.fold_comments(toc, fold, unfold)
         else:
-            self.show_quick_panel(edit)
+            self.show_quick_panel(toc)
 
     # >> Quick panel
-    def show_quick_panel(self, edit):
+    def show_quick_panel(self, toc):
         view = self.view
-        toc = TableOfComments(view, edit)
         toc._debug_start('Show quick panel')
         toc.create_toc()
+        # Get current section from cursor
+        show_index = 0
+        current_section = toc.get_section_from_cursor()
+        if current_section:
+            show_index = current_section['index']
         # Store position for returning to
         return_to = []
         for each in view.sel():
@@ -43,15 +48,14 @@ class table_of_comments_command(sublime_plugin.TextCommand):
             self.window.show_quick_panel(titles, toc.on_list_selected_done)
         else:
             self.window.show_quick_panel(  # Pass on_highlighted callback
-                titles, toc.on_list_selected_done, False, 0,
+                titles, toc.on_list_selected_done, False, show_index,
                 toc.on_list_selected_done)
         toc._debug_stop('Show quick panel')
 
     # >> Up down
     # Allows moving up and down through comments
-    def traverse_comments(self, edit, move):
+    def traverse_comments(self, toc, move):
         view = self.view
-        toc = TableOfComments(view, edit)
         titles = toc.get_comment_titles()
         sel = view.sel()
         if len(sel) == 1:
@@ -64,14 +68,13 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                             if titles[x+1]['line'] >= current_line_no:
                                 return toc.on_list_selected_done(x)
                         else:
-                            return self.on_list_selected_done(x)
+                            return toc.on_list_selected_done(x)
                 else:  # moving down
                     if item['line'] > current_line_no:
                         return toc.on_list_selected_done(x)
 
     # >> Fold comments
-    def fold_comments(self, edit, fold, unfold):
-        toc = TableOfComments(self.view, edit)
+    def fold_comments(self, toc, fold, unfold):
         comments = self.view.find_by_selector('comment')
         titles = toc.get_comment_titles()
         is_all = fold == 'all' or unfold == 'all'
@@ -79,29 +82,16 @@ class table_of_comments_command(sublime_plugin.TextCommand):
         sels = self.view.sel()
         for each in sels:
             sel = each
-        # Only get comment blocks with titles within them
-        regions = []
-        for i in range(len(comments)):
-            region = comments[i]
-            for title in titles:
-                if region.contains(title['region']):
-                    regions.append(region)
-        # Get the fold regions (content blocks)
+        # Get content regions to fold
         fold_regions = []
-        for i in range(len(regions)):
-            region = regions[i]
-            for title in titles:
-                if region.contains(title['region']):
-                    fold_start = region.b + 1
-                    fold_end = self.view.size()
-                    if i < len(regions)-1:
-                        fold_end = regions[i+1].a - 1
-                    region_content = sublime.Region(fold_start, fold_end)
-                    if region.contains(sel) or is_all:
-                        fold_regions.append(region_content)
-                    elif region_content.contains(sel):
-                        fold_regions.append(region_content)
-
+        sections = toc.get_plugin_sections()
+        for each in sections:
+            title_region = each['title_region']
+            content_region = each['content_region']
+            if title_region.contains(sel) or is_all:
+                fold_regions.append(content_region)
+            elif content_region.contains(sel):
+                fold_regions.append(content_region)
         # Fold, unfold or toggle
         if fold is not None:
             self.view.fold(fold_regions)
@@ -273,6 +263,53 @@ class TableOfComments:
                             results.append(label)
         self._debug_stop('get-comment-titles')
         return results
+
+#
+# >> Plugin sections (regions)
+#
+
+    # Returns list of sections dicts with all related values
+    def get_plugin_sections(self):
+        comments = self.view.find_by_selector('comment')
+        titles = self.get_comment_titles()
+        # Only get comment blocks with titles within them
+        sections = []
+        for i in range(len(comments)):
+            comment = comments[i]
+            for title in titles:
+                if comment.contains(title['region']):
+                    title['title_region'] = comment
+                    sections.append(title)
+        # Get the fold regions (content blocks)
+        output = []
+        for i in range(len(sections)):
+            section = sections[i]
+            section['index'] = i
+            region = section['title_region']
+            for title in titles:
+                if region.contains(title['region']):
+                    fold_start = region.b + 1
+                    fold_end = self.view.size()
+                    if i < len(sections)-1:
+                        fold_end = sections[i+1]['region'].a - 1
+                    content_region = sublime.Region(fold_start, fold_end)
+                    section['content_region'] = content_region
+            output.append(section)
+        return output
+
+    # Returns the title and content region from cursor
+    def get_section_from_cursor(self):
+        # Current selection
+        sels = self.view.sel()
+        for each in sels:
+            sel = each
+        # Find within sections
+        sections = self.get_plugin_sections()
+        for section in sections:
+            if section['title_region'].contains(sel) \
+                    or section['content_region'].contains(sel):
+                return section
+        return False
 
     # Only find titles within genuine comments
     # This will no doubt need to be improved over time for various syntaxes
