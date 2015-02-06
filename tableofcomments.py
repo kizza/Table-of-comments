@@ -84,7 +84,7 @@ class table_of_comments_command(sublime_plugin.TextCommand):
             sel = each
         # Get content regions to fold
         fold_regions = []
-        sections = toc.get_plugin_sections()
+        sections = toc.get_sections()
         for each in sections:
             title_region = each['title_region']
             content_region = each['content_region']
@@ -273,7 +273,7 @@ class TableOfComments:
 #
 
     # Returns list of sections dicts with all related values
-    def get_plugin_sections(self):
+    def get_sections(self):
         comments = self.view.find_by_selector('comment')
         titles = self.get_comment_titles()
         # Only get comment blocks with titles within them
@@ -308,7 +308,7 @@ class TableOfComments:
         for each in sels:
             sel = each
         # Find within sections
-        sections = self.get_plugin_sections()
+        sections = self.get_sections()
         for section in sections:
             if section['title_region'].contains(sel) \
                     or section['content_region'].contains(sel):
