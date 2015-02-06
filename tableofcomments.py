@@ -192,14 +192,18 @@ class TableOfComments:
             row = title['line']
             point = self.view.text_point(row, 0)
             line_region = self.view.line(point)
+            # Reference the 'text' within the line only
             text = title['text']
             text = re.escape(text)
             text = text.replace('\>', '>')  # ">" does not work when escaped
-            text_region = self.view.find(
-                text, line_region.a)
+            text_region = self.view.find(text, line_region.a)
+            # Use goto_line to move the document then highlight
+            if sublime.active_window().active_view():
+                sublime.active_window().active_view().run_command(
+                    "goto_line", {"line": int(title['line'])}
+                    )
             self.view.sel().clear()
             self.view.sel().add(text_region)
-            self.view.show_at_center(text_region.b)
 
 #
 # >> Parse
