@@ -1,17 +1,17 @@
- _____     _     _               __
+_____     _     _               __
 |_   _|   | |   | |             / _|
-  | | __ _| |__ | | ___    ___ | |_
-  | |/ _` | '_ \| |/ _ \  / _ \|  _|
-  | | (_| | |_) | |  __/ | (_) | |
-  \_/\__,_|_.__/|_|\___|  \___/|_|
+| | __ _| |__ | | ___    ___ | |_
+| |/ _` | '_ \| |/ _ \  / _ \|  _|
+| | (_| | |_) | |  __/ | (_) | |
+\_/\__,_|_.__/|_|\___|  \___/|_|
 
 
- _____                                      _
+_____                                      _
 /  __ \                                    | |
 | /  \/ ___  _ __ ___  _ __ ___   ___ _ __ | |_ ___
 | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __/ __|
 | \__/\ (_) | | | | | | | | | | |  __/ | | | |_\__ \
- \____/\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|___/
+\____/\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|___/
 
 
 
@@ -44,8 +44,14 @@ command and press enter.
 Available commands:
 
     - Table of Comments: Show  -- Will show/generate the table of comments.
-    - Table of Comments: Move Up  -- Move the cursor to the previous comment.
-    - Table of Comments: Move Down  -- Move the cursor to the next comment.
+    - Table of Comments: Prev Title  -- Move the cursor to the previous comment.
+    - Table of Comments: Next Title  -- Move the cursor to the next comment.
+
+    - Table of Comments: Fold Current  -- Folds the current section
+    - Table of Comments: Unfold Current  -- Unfolds the current section
+    - Table of Comments: Fold All  -- Folds all comment title sections
+    - Table of Comments: Unfold All  -- Unolds all comment title sections
+
     - Table of Comments: Settings - Default  -- Open the default settings file.
     - Table of Comments: Settings - User   -- Move the user settings file.
 

@@ -15,10 +15,12 @@
 
 -------------------------------
 
-Updates in 1.1.4:
+Updates in 1.1.5:
 
-    - Fixed several comment title parsing bugs
-    - Added feature to highlight titles as they are scrolled through via the quick-jump menu
+    - Quick jump menu now opens at current location (available for ST3 only)
+    - Added section code folding. Now current comment section (or all sections) can be
+      folded and unfolded using commands or keyboard shortcuts
+    - Several bug fixes
 
 
 Thank you!

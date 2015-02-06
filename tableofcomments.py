@@ -5,6 +5,7 @@ titles
 
 import os
 import imp
+import time
 import sys
 import sublime
 import sublime_plugin
@@ -12,36 +13,49 @@ import re
 
 
 #
-# Plugin command
+# > Plugin command
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None):
+    def run(self, edit, move=None, fold=None, unfold=None):
+        toc = TableOfComments(self.view, edit)
         if move is not None:
-            return self.traverse_comments(edit, move)
+            self.traverse_comments(toc, move)
+        elif fold is not None or unfold is not None:
+            self.fold_comments(toc, fold, unfold)
         else:
-            view = self.view
-            toc = TableOfComments(view, edit)
-            toc.create_toc()
-            # Store position for returning to
-            return_to = []
-            for each in view.sel():
-                return_to.append(each)
-            toc.return_to = return_to
-            # Pop up the panel
-            titles = toc.get_comment_titles('string')
-            self.window = sublime.active_window()
-            if sys.version_info < (3, 0):
-                self.window.show_quick_panel(titles, toc.on_list_selected_done)
-            else:
-                self.window.show_quick_panel(  # Pass on_highlighted callback
-                    titles, toc.on_list_selected_done, False, 0,
-                    toc.on_list_selected_done)
+            self.show_quick_panel(toc)
 
-    # Allows moving up and down through comments
-    def traverse_comments(self, edit, move):
+    # >> Quick panel
+    def show_quick_panel(self, toc):
         view = self.view
-        toc = TableOfComments(view, edit)
+        toc._debug_start('Show quick panel')
+        toc.create_toc()
+        # Get current section from cursor
+        show_index = 0
+        current_section = toc.get_section_from_cursor()
+        if current_section:
+            show_index = current_section['index']
+        # Store position for returning to
+        return_to = []
+        for each in view.sel():
+            return_to.append(each)
+        toc.return_to = return_to
+        # Pop up the panel
+        titles = toc.get_comment_titles('string')
+        self.window = sublime.active_window()
+        if sys.version_info < (3, 0):
+            self.window.show_quick_panel(titles, toc.on_list_selected_done)
+        else:
+            self.window.show_quick_panel(  # Pass on_highlighted callback
+                titles, toc.on_list_selected_done, False, show_index,
+                toc.on_list_selected_done)
+        toc._debug_stop('Show quick panel')
+
+    # >> Up down
+    # Allows moving up and down through comments
+    def traverse_comments(self, toc, move):
+        view = self.view
         titles = toc.get_comment_titles()
         sel = view.sel()
         if len(sel) == 1:
@@ -54,20 +68,61 @@ class table_of_comments_command(sublime_plugin.TextCommand):
                             if titles[x+1]['line'] >= current_line_no:
                                 return toc.on_list_selected_done(x)
                         else:
-                            return self.on_list_selected_done(x)
+                            return toc.on_list_selected_done(x)
                 else:  # moving down
                     if item['line'] > current_line_no:
                         return toc.on_list_selected_done(x)
 
+    # >> Fold comments
+    def fold_comments(self, toc, fold, unfold):
+        comments = self.view.find_by_selector('comment')
+        titles = toc.get_comment_titles()
+        is_all = fold == 'all' or unfold == 'all'
+        # Current selection
+        sels = self.view.sel()
+        for each in sels:
+            sel = each
+        # Get content regions to fold
+        fold_regions = []
+        sections = toc.get_sections()
+        for each in sections:
+            title_region = each['title_region']
+            content_region = each['content_region']
+            if title_region.contains(sel) or is_all:
+                fold_regions.append(content_region)
+            elif content_region.contains(sel):
+                fold_regions.append(content_region)
+        # Fold, unfold or toggle
+        if fold is not None:
+            self.view.fold(fold_regions)
+        elif unfold is not None:
+            self.view.unfold(fold_regions)
+        elif self.view.fold(fold_regions) is False:
+            self.view.unfold(fold_regions)
+
 
 #
-# Plugin class
+# > Plugin class
 #
 class TableOfComments:
 
     def __init__(self, view, edit):
         self.view = view
         self.edit = edit
+
+#
+# Debug timing functions
+#
+#
+    timers = {}
+
+    def _debug_start(self, ref):
+        self.timers[ref] = time.time()
+
+    def _debug_stop(self, ref):
+        start_time = self.timers[ref]
+        duration = time.time() - start_time
+        self.timers[ref] = duration
 
 #
 # Table TOC tag
@@ -82,6 +137,13 @@ class TableOfComments:
                 return region
         return None
 
+    def is_in_toc_region(self, view, region):
+        toc_region = self.get_toc_region(view)
+        if toc_region:
+            if region.a > toc_region.a and region.a < toc_region.b:
+                return True
+        return False
+
     def create_toc(self):
         view = self.view
         edit = self.edit
@@ -93,6 +155,7 @@ class TableOfComments:
                 view.replace(edit, region, toc)
 
     def compile_toc(self, view):
+        self._debug_start('compile-toc')
         titles = self.get_comment_titles('string')
         title = get_setting('toc_title', str)
         start = get_setting('toc_start', str)
@@ -109,7 +172,12 @@ class TableOfComments:
             except TypeError:
                 output += front + title
         output += "\n"+end
+        self._debug_stop('compile-toc')
         return output
+
+#
+# >> Quick panel
+#
 
     # Jump list quick menu selected
     def on_list_selected_done(self, picked):
@@ -124,17 +192,26 @@ class TableOfComments:
             row = title['line']
             point = self.view.text_point(row, 0)
             line_region = self.view.line(point)
+            # Reference the 'text' within the line only
             text = title['text']
             text = re.escape(text)
             text = text.replace('\>', '>')  # ">" does not work when escaped
-            text_region = self.view.find(
-                text, line_region.a)
+            text_region = self.view.find(text, line_region.a)
+            # Use goto_line to move the document then highlight
+            if sublime.active_window().active_view():
+                sublime.active_window().active_view().run_command(
+                    "goto_line", {"line": int(title['line'])}
+                    )
             self.view.sel().clear()
             self.view.sel().add(text_region)
-            self.view.show_at_center(text_region.b)
+
+#
+# >> Parse
+#
 
     # Core parse function (returned as dict or list)
     def get_comment_titles(self, format='dict', test=None):
+        self._debug_start('get-comment-titles')
         view = self.view
         level_char = get_setting('level_char', str)
         comment_chars = get_setting('comment_chars', str)
@@ -172,7 +249,6 @@ class TableOfComments:
 
                     # Replace level char with toc char
                     label = self.replace_level_chars(label)
-
                     if label != '':
                         label += ' '
 
@@ -186,16 +262,57 @@ class TableOfComments:
                         if format == 'dict':
                             results.append(
                                 {'label': label, 'text': text,
-                                    'line': line_no})
+                                    'region': region, 'line': line_no})
                         else:
                             results.append(label)
+        self._debug_stop('get-comment-titles')
         return results
 
-    def is_in_toc_region(self, view, region):
-        toc_region = self.get_toc_region(view)
-        if toc_region:
-            if region.a > toc_region.a and region.a < toc_region.b:
-                return True
+#
+# >> Plugin sections (regions)
+#
+
+    # Returns list of sections dicts with all related values
+    def get_sections(self):
+        comments = self.view.find_by_selector('comment')
+        titles = self.get_comment_titles()
+        # Only get comment blocks with titles within them
+        sections = []
+        for i in range(len(comments)):
+            comment = comments[i]
+            for title in titles:
+                if comment.contains(title['region']):
+                    title['title_region'] = comment
+                    sections.append(title)
+        # Get the fold regions (content blocks)
+        output = []
+        for i in range(len(sections)):
+            section = sections[i]
+            section['index'] = i
+            region = section['title_region']
+            for title in titles:
+                if region.contains(title['region']):
+                    fold_start = region.b + 1
+                    fold_end = self.view.size()
+                    if i < len(sections)-1:
+                        fold_end = sections[i+1]['region'].a - 1
+                    content_region = sublime.Region(fold_start, fold_end)
+                    section['content_region'] = content_region
+            output.append(section)
+        return output
+
+    # Returns the title and content region from cursor
+    def get_section_from_cursor(self):
+        # Current selection
+        sels = self.view.sel()
+        for each in sels:
+            sel = each
+        # Find within sections
+        sections = self.get_sections()
+        for section in sections:
+            if section['title_region'].contains(sel) \
+                    or section['content_region'].contains(sel):
+                return section
         return False
 
     # Only find titles within genuine comments

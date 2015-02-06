@@ -4,14 +4,34 @@
         "command": "table_of_comments"
     },
     {
-        "caption": "Table of Comments: Move Up",
+        "caption": "Table of Comments: Next Title",
         "command": "table_of_comments",
         "args": {"move": "up"}
     },
     {
-        "caption": "Table of Comments: Move Down",
+        "caption": "Table of Comments: Prev Title",
         "command": "table_of_comments",
         "args": {"move": "down"}
+    },
+    {
+        "caption": "Table of Comments: Fold Current",
+        "command": "table_of_comments",
+        "args": {"fold": true}
+    },
+    {
+        "caption": "Table of Comments: Unfold Current",
+        "command": "table_of_comments",
+        "args": {"unfold": true}
+    },
+    {
+        "caption": "Table of Comments: Fold All",
+        "command": "table_of_comments",
+        "args": {"fold": "all"}
+    },
+    {
+        "caption": "Table of Comments: Unfold All",
+        "command": "table_of_comments",
+        "args": {"unfold": "all"}
     },
     {
         "caption": "Table of Comments: Run Tests",
