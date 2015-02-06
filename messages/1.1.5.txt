@@ -17,9 +17,9 @@
 
 Updates in 1.1.5:
 
-    - Added section code folding. Current comment section (or all sections) can be
+    - Quick jump menu now opens at current location (available for ST3 only)
+    - Added section code folding. Now current comment section (or all sections) can be
       folded using commands or keyboard shortcuts
-
     - Several bug fixes
 
 

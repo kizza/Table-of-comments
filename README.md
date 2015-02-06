@@ -54,9 +54,11 @@ the quick-jump menu quickly whilst typing.
 1. Add a keystroke binding within your preferences (recommended)
     Open "Preferenes -> Key Bindings - User" from the main menu then paste
 
-    ```{ "keys": ["f1"], "command": "table_of_comments" }```
-    
+    ```
+    { "keys": ["f1"], "command": "table_of_comments" }
+    ```
     (This example runs the plugin by pressing F1)
+    
     
 2. You can also run the plugin via the command palette (Crtl+ Shift + P). 
 Simply find and execute "Table of Comments: Show"
@@ -70,12 +72,11 @@ You can also move to the next/prev comment from your local position.
 Here are some examples of the keybindings you can set in 
 "Preferenes -> Key Bindings - User" from the main menu.
 
-    ```
-    { "keys": ["alt+up"],   "command": "table_of_comments", "args":{ "move":"up" } }
-    { "keys": ["alt+down"], "command": "table_of_comments", "args":{ "move":"down" } }
-    ```
+```
+{ "keys": ["alt+up"],   "command": "table_of_comments", "args":{ "move":"up" } }
+{ "keys": ["alt+down"], "command": "table_of_comments", "args":{ "move":"down" } }
+```
 Feel free to set any keyboard shortcuts you like.
-
 (This behaviour inspired by by [Sublime Move By Symbols](https://packagecontrol.io/packages/Move%20By%20Symbols) plugin)
 
 ### Folding and unfolding sections
@@ -85,15 +86,15 @@ Here are some examples of the keybindings you can set in
 "Preferenes -> Key Bindings - User" from the main menu.
 
 Fold and unfold current section
-    ```
-    { "keys": ["alt+["], "command": "table_of_comments", "args":{ "fold":true } }
-    { "keys": ["alt+]"], "command": "table_of_comments", "args":{ "unfold":"true" } }
-    ```
+```
+{ "keys": ["alt+["], "command": "table_of_comments", "args":{ "fold":true } }
+{ "keys": ["alt+]"], "command": "table_of_comments", "args":{ "unfold":"true" } }
+```
 Fold and unfold all sections
-    ```
-    { "keys": ["alt+shift+["], "command": "table_of_comments", "args":{ "fold":"all" } }
-    { "keys": ["alt+shift+]"], "command": "table_of_comments", "args":{ "unfold":""all"" } }
-    ```
+```
+{ "keys": ["alt+shift+["], "command": "table_of_comments", "args":{ "fold":"all" } }
+{ "keys": ["alt+shift+]"], "command": "table_of_comments", "args":{ "unfold":""all"" } }
+```
 
 ### Outputting a table of contents (optional)
 
