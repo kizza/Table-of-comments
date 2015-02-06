@@ -81,7 +81,7 @@ Feel free to set any keyboard shortcuts you like.
 
 ### Folding and unfolding sections
 
-Current comment section (or all sections) can be folded using commands or keyboard shortcuts
+Current comment section (or all sections) can be folded and unfolded using commands or keyboard shortcuts.
 Here are some examples of the keybindings you can set in 
 "Preferenes -> Key Bindings - User" from the main menu.
 

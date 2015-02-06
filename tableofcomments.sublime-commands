@@ -14,9 +14,14 @@
         "args": {"move": "down"}
     },
     {
-        "caption": "Table of Comments: Fold Title",
+        "caption": "Table of Comments: Fold Current",
         "command": "table_of_comments",
         "args": {"fold": true}
+    },
+    {
+        "caption": "Table of Comments: Unfold Current",
+        "command": "table_of_comments",
+        "args": {"unfold": true}
     },
     {
         "caption": "Table of Comments: Fold All",
