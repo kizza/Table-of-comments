@@ -290,7 +290,18 @@ class TableOfComments:
             # we need to get the whole lines in order to match
             # indented title regions correctly
             comment = self.view.line(comments[i])
-
+            # If multiple lines returned check for valid lines
+            comment_lines = self.view.split_by_newlines(comment)
+            if len(comment_lines) > 0:
+                fixed_comment_lines = []
+                for x in range(len(comment_lines)):
+                    if self.is_scope_or_comment(self.view, comment_lines[x]):
+                        fixed_comment_lines.append(comment_lines[x])
+                comment = sublime.Region(
+                    fixed_comment_lines[0].a,
+                    fixed_comment_lines[len(fixed_comment_lines)-1].b
+                    )
+            # Append to sections
             for title in titles:
                 if comment.contains(title['region']):
                     title['title_region'] = comment
