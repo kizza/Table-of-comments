@@ -215,13 +215,12 @@ class TableOfComments:
         view = self.view
         level_char = get_setting('level_char', str)
         comment_chars = get_setting('comment_chars', str)
-        escaped_chars = re.escape(comment_chars)
         comment = list(comment_chars)
         comment = 'DIV'.join(comment_chars)
         start = r'\s|'+re.escape(comment).replace('DIV', '|')
         # build the pattern to match the comment
         pattern = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*' + \
-            r'([^'+escaped_chars+']+)('+start+')*?$'
+            r'(.+)('+start+')*?$'
 
         matches = view.find_all(pattern)
         results = []
@@ -252,8 +251,8 @@ class TableOfComments:
                     if label != '':
                         label += ' '
 
-                    # append the heading text
-                    text = line_match.group(3).strip()
+                    # append the heading text, remove trailing comment chars
+                    text = line_match.group(3).strip(comment_chars+' ')
                     label += text
 
                     # Get the position
