@@ -297,10 +297,11 @@ class TableOfComments:
                 for x in range(len(comment_lines)):
                     if self.is_scope_or_comment(self.view, comment_lines[x]):
                         fixed_comment_lines.append(comment_lines[x])
-                comment = sublime.Region(
-                    fixed_comment_lines[0].a,
-                    fixed_comment_lines[len(fixed_comment_lines)-1].b
-                    )
+                if len(fixed_comment_lines) > 0:
+                    comment = sublime.Region(
+                        fixed_comment_lines[0].a,
+                        fixed_comment_lines[len(fixed_comment_lines)-1].b
+                        )
             # Append to sections
             for title in titles:
                 if comment.contains(title['region']):
