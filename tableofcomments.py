@@ -36,11 +36,13 @@ class table_of_comments_command(sublime_plugin.TextCommand):
         current_section = toc.get_section_from_cursor()
         if current_section:
             show_index = current_section['index']
-        # Store position for returning to
+
+        # Store positions for returning to
         return_to = []
         for each in view.sel():
             return_to.append(each)
         toc.return_to = return_to
+
         # Pop up the panel
         titles = toc.get_comment_titles('string')
         self.window = sublime.active_window()
@@ -76,22 +78,20 @@ class table_of_comments_command(sublime_plugin.TextCommand):
     # >> Fold comments
     def fold_comments(self, toc, fold, unfold):
         comments = self.view.find_by_selector('comment')
-        titles = toc.get_comment_titles()
         is_all = fold == 'all' or unfold == 'all'
-        # Current selection
-        sels = self.view.sel()
-        for each in sels:
-            sel = each
-        # Get content regions to fold
+
+        # Get the content regions to fold
         fold_regions = []
-        sections = toc.get_sections()
-        for each in sections:
-            title_region = each['title_region']
-            content_region = each['content_region']
-            if title_region.contains(sel) or is_all:
+
+        if is_all:
+            sections = toc.get_sections()
+            for s in sections:
+                content_region = s['content_region']
                 fold_regions.append(content_region)
-            elif content_region.contains(sel):
-                fold_regions.append(content_region)
+        else:
+            section = toc.get_section_from_cursor()
+            fold_regions.append(section['content_region'])
+
         # Fold, unfold or toggle
         if fold is not None:
             self.view.fold(fold_regions)
@@ -197,10 +197,13 @@ class TableOfComments:
             text = re.escape(text)
             text = text.replace('\>', '>')  # ">" does not work when escaped
             text_region = self.view.find(text, line_region.a)
+
+            # view.rowcol() returns a zero based line number
+            line = int(title['line'])+1
             # Use goto_line to move the document then highlight
             if sublime.active_window().active_view():
                 sublime.active_window().active_view().run_command(
-                    "goto_line", {"line": int(title['line'])}
+                    "goto_line", {"line": line}
                     )
             self.view.sel().clear()
             self.view.sel().add(text_region)
@@ -215,13 +218,12 @@ class TableOfComments:
         view = self.view
         level_char = get_setting('level_char', str)
         comment_chars = get_setting('comment_chars', str)
-        escaped_chars = re.escape(comment_chars)
         comment = list(comment_chars)
         comment = 'DIV'.join(comment_chars)
         start = r'\s|'+re.escape(comment).replace('DIV', '|')
         # build the pattern to match the comment
         pattern = r'^('+start+')*?('+format_pattern(level_char)+'+)\s*' + \
-            r'([^'+escaped_chars+']+)('+start+')*?$'
+            r'(.+)('+start+')*?$'
 
         matches = view.find_all(pattern)
         results = []
@@ -249,11 +251,12 @@ class TableOfComments:
 
                     # Replace level char with toc char
                     label = self.replace_level_chars(label)
+                    level = len(label)
                     if label != '':
                         label += ' '
 
-                    # append the heading text
-                    text = line_match.group(3).strip()
+                    # append the heading text, remove trailing comment chars
+                    text = line_match.group(3).strip(comment_chars+' ')
                     label += text
 
                     # Get the position
@@ -261,8 +264,11 @@ class TableOfComments:
                         line_no, col_no = view.rowcol(region.b)
                         if format == 'dict':
                             results.append(
-                                {'label': label, 'text': text,
-                                    'region': region, 'line': line_no})
+                                {'label': label,
+                                    'text': text,
+                                    'level': level,
+                                    'region': region,
+                                    'line': line_no})
                         else:
                             results.append(label)
         self._debug_stop('get-comment-titles')
@@ -276,42 +282,66 @@ class TableOfComments:
     def get_sections(self):
         comments = self.view.find_by_selector('comment')
         titles = self.get_comment_titles()
+
         # Only get comment blocks with titles within them
         sections = []
         for i in range(len(comments)):
-            comment = comments[i]
+            # we need to get the whole lines in order to match
+            # indented title regions correctly
+            comment = self.view.line(comments[i])
+            # If multiple lines returned check for valid lines
+            comment_lines = self.view.split_by_newlines(comment)
+            if len(comment_lines) > 0:
+                fixed_comment_lines = []
+                for x in range(len(comment_lines)):
+                    if self.is_scope_or_comment(self.view, comment_lines[x]):
+                        fixed_comment_lines.append(comment_lines[x])
+                if len(fixed_comment_lines) > 0:
+                    comment = sublime.Region(
+                        fixed_comment_lines[0].a,
+                        fixed_comment_lines[len(fixed_comment_lines)-1].b
+                        )
+            # Append to sections
             for title in titles:
                 if comment.contains(title['region']):
                     title['title_region'] = comment
                     sections.append(title)
+                    break
+
         # Get the fold regions (content blocks)
-        output = []
-        for i in range(len(sections)):
+        s_no = len(sections)
+        view_size = self.view.size()
+        for i in range(s_no):
             section = sections[i]
             section['index'] = i
             region = section['title_region']
-            for title in titles:
-                if region.contains(title['region']):
-                    fold_start = region.b + 1
-                    fold_end = self.view.size()
-                    if i < len(sections)-1:
-                        fold_end = sections[i+1]['region'].a - 1
-                    content_region = sublime.Region(fold_start, fold_end)
-                    section['content_region'] = content_region
-            output.append(section)
-        return output
+
+            # content_region = the area that will be hidden when folded
+            fold_start = region.b + 1
+            fold_end = view_size
+
+            # get the next section of equal or lower level
+            for j in range(i+1, s_no):
+                if sections[j]['level'] <= section['level']:
+                    fold_end = sections[j]['title_region'].a - 1
+                    break
+
+            content_region = sublime.Region(fold_start, fold_end)
+            section['content_region'] = content_region
+
+        return sections
 
     # Returns the title and content region from cursor
     def get_section_from_cursor(self):
         # Current selection
-        sels = self.view.sel()
-        for each in sels:
-            sel = each
+        sel = self.view.sel()[0]
+        line_no, col_no = self.view.rowcol(sel.b)
+
         # Find within sections
         sections = self.get_sections()
-        for section in sections:
-            if section['title_region'].contains(sel) \
-                    or section['content_region'].contains(sel):
+
+        for section in reversed(sections):
+            if section['line'] <= line_no:
                 return section
         return False
 
