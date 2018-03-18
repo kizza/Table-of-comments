@@ -184,3 +184,13 @@ setting below to only show first level headings.
 ```
 "toc_level":"1"
 ```
+
+#### Generate TOC on save
+
+To generate the TOC you need to enable the following configuration:
+
+```
+"toc_generate_on_save": true
+```
+
+
