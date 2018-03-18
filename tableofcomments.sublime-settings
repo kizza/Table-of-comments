@@ -36,5 +36,11 @@
     * These characters are allowed to appear before the parsed title within the comment
     * (if unsure leave as is)
     */
-    "comment_chars": "/*#|"
+    "comment_chars": "/*#|",
+
+    /*
+    * Generate the TOC table on the save action.
+    */
+    "toc_generate_on_save": false
+
 }
