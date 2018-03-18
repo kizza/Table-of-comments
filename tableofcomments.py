@@ -17,12 +17,14 @@ import re
 #
 class table_of_comments_command(sublime_plugin.TextCommand):
 
-    def run(self, edit, move=None, fold=None, unfold=None):
+    def run(self, edit, move=None, fold=None, unfold=None, generate=None):
         toc = TableOfComments(self.view, edit)
         if move is not None:
             self.traverse_comments(toc, move)
         elif fold is not None or unfold is not None:
             self.fold_comments(toc, fold, unfold)
+        elif generate is not None:
+            toc.create_toc()
         else:
             self.show_quick_panel(toc)
 
@@ -430,3 +432,10 @@ def reload_test_bootstrap():
         sys.modules[path] = reload(sys.modules[path])
     else:
         imp.reload(eval(path))
+
+
+class table_of_comments_auto_runner(sublime_plugin.EventListener):
+    def on_pre_save(self, view):
+        if get_setting('toc_generate_on_save', bool):
+            view.run_command('table_of_comments', { 'generate': True })
+
